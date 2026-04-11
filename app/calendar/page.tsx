@@ -2,20 +2,27 @@
 
 import { useState } from "react";
 import { MOCK_TASKS } from "@/lib/mock-data";
-import type { Task, EnergyBlock } from "@/lib/types";
+import type { Task, EnergyBlock, WeeklyEvent } from "@/lib/types";
 import { QuickCapture } from "@/components/calendar/QuickCapture";
 import { InboxPanel } from "@/components/calendar/InboxPanel";
 import { EnergyCalendar } from "@/components/calendar/EnergyCalendar";
-import { Zap, Inbox, Clock } from "@/lib/icons";
+import { WeeklyPlanner } from "@/components/calendar/WeeklyPlanner";
 import { DailyScheduleCalendar } from "@/components/calendar/DailyScheduleCalendar";
+import { useWeeklySchedule } from "@/lib/useWeeklySchedule";
+import { Zap, Inbox, Clock } from "@/lib/icons";
 
 let _nextId = 100;
-function genId() {
-  return `t-cap-${++_nextId}`;
+function genId() { return `t-cap-${++_nextId}`; }
+
+// 0=Lun … 6=Dom (compatibile con WeeklyEvent)
+function todayDow(): 0|1|2|3|4|5|6 {
+  return ((new Date().getDay() + 6) % 7) as 0|1|2|3|4|5|6;
 }
 
 export default function CalendarPage() {
   const [tasks, setTasks] = useState<Task[]>(MOCK_TASKS);
+  const [selectedDow, setSelectedDow] = useState<0|1|2|3|4|5|6>(todayDow());
+  const { events: weeklyEvents, replaceAll } = useWeeklySchedule();
 
   const inboxTasks = tasks.filter((t) => t.status === "Inbox" && !t.energy_block);
   const calendarTasks = tasks.filter((t) => !!t.energy_block);
@@ -23,35 +30,27 @@ export default function CalendarPage() {
   function addToInbox(title: string) {
     const now = new Date().toISOString().split("T")[0];
     const newTask: Task = {
-      id: genId(),
-      title,
-      category: "Admin",
-      energy_required: 2,
-      status: "Inbox",
-      duration_mins: 30,
-      created_at: now,
+      id: genId(), title, category: "Admin",
+      energy_required: 2, status: "Inbox",
+      duration_mins: 30, created_at: now,
     };
     setTasks((prev) => [newTask, ...prev]);
   }
 
   function assignToBlock(taskId: string, block: EnergyBlock) {
     setTasks((prev) =>
-      prev.map((t) =>
-        t.id === taskId
-          ? { ...t, energy_block: block, status: "Todo" as const }
-          : t
-      )
+      prev.map((t) => t.id === taskId ? { ...t, energy_block: block, status: "Todo" as const } : t)
     );
   }
 
   function removeFromBlock(taskId: string) {
     setTasks((prev) =>
-      prev.map((t) =>
-        t.id === taskId
-          ? { ...t, energy_block: undefined, status: "Inbox" as const }
-          : t
-      )
+      prev.map((t) => t.id === taskId ? { ...t, energy_block: undefined, status: "Inbox" as const } : t)
     );
+  }
+
+  function handleReplaceAll(events: Omit<WeeklyEvent, "id">[]) {
+    replaceAll(events);
   }
 
   return (
@@ -67,9 +66,11 @@ export default function CalendarPage() {
       {/* Quick Capture */}
       <QuickCapture onCapture={addToInbox} />
 
-      {/* Body — two columns on large screens */}
+      {/* Weekly Planner (collapsibile) */}
+      <WeeklyPlanner onApply={handleReplaceAll} />
+
+      {/* Task Inbox + Energy Calendar */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
-        {/* Left: Inbox */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Inbox size={14} className="text-white/40" />
@@ -85,7 +86,6 @@ export default function CalendarPage() {
           <InboxPanel tasks={inboxTasks} onAssign={assignToBlock} />
         </div>
 
-        {/* Right: Energy Calendar */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Zap size={14} className="text-white/40" />
@@ -105,7 +105,11 @@ export default function CalendarPage() {
             Agenda Giornaliera
           </h2>
         </div>
-        <DailyScheduleCalendar />
+        <DailyScheduleCalendar
+          weeklyEvents={weeklyEvents}
+          selectedDayOfWeek={selectedDow}
+          onDayChange={setSelectedDow}
+        />
       </div>
     </div>
   );

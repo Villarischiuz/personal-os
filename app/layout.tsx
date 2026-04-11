@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PersonalOS — Command Center",
+  title: "PersonalOS — Calendario",
   description: "Cognitive efficiency & physical performance dashboard",
 };
 

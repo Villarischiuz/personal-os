@@ -90,6 +90,20 @@ export interface MacroLog {
   fat_g_actual: number;
 }
 
+// ─── CALENDAR ────────────────────────────────────────────────
+export type EventColor = "blue" | "green" | "orange" | "violet" | "rose";
+
+export interface WeeklyEvent {
+  id: string;
+  title: string;
+  /** 0=Lunedì … 6=Domenica */
+  dayOfWeek: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  hour: number;   // 6–22
+  minute: number; // 0 | 30
+  durationMins: number;
+  color: EventColor;
+}
+
 // ─── DERIVED / COMPUTED TYPES ────────────────────────────────
 export interface SystemStatus {
   color: "green" | "yellow" | "red";

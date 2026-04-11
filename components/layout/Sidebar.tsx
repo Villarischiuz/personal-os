@@ -8,12 +8,13 @@ import {
   Dumbbell,
   BriefcaseBusiness,
   Cpu,
+  BarChart3,
 } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Centro Comando", icon: LayoutDashboard },
   { href: "/calendar", label: "Calendario", icon: Calendar },
+  { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
   { href: "/physical", label: "Piano Fisico", icon: Dumbbell },
   { href: "/work", label: "Piano Lavoro", icon: BriefcaseBusiness },
 ] as const;
