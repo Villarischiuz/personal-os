@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -11,10 +14,11 @@ import {
   getLowStockItems,
   getDaysUntilDepletion,
 } from "@/lib/computations";
-import { TrendingUp, TrendingDown, Minus, Package, ShoppingCart, Trophy } from "@/lib/icons";
+import { TrendingUp, TrendingDown, Minus, Package, ShoppingCart, Trophy, Copy, Check } from "@/lib/icons";
 import { cn, pct } from "@/lib/utils";
 
 export default function PhysicalPage() {
+  const [copied, setCopied] = useState(false);
   const overloadRows = buildOverloadTable(MOCK_WORKOUT_ENTRIES);
   const lowStock = getLowStockItems(MOCK_INVENTORY);
   const todayMacros = MOCK_MACRO_LOGS[MOCK_MACRO_LOGS.length - 1];
@@ -62,7 +66,7 @@ export default function PhysicalPage() {
                         <div className="flex items-center gap-2">
                           {row.exercise}
                           {row.is_pr && (
-                            <Trophy size={12} className="text-yellow-500" title="Personal Record" />
+                            <Trophy size={12} className="text-yellow-500" aria-label="Personal Record" />
                           )}
                         </div>
                       </td>
@@ -104,30 +108,53 @@ export default function PhysicalPage() {
             {lowStock.length === 0 ? (
               <p className="py-4 text-center text-sm text-white/30">Tutte le scorte sono ok.</p>
             ) : (
-              lowStock.map((item) => {
-                const days = getDaysUntilDepletion(item);
-                return (
-                  <div key={item.id} className="rounded-lg border border-red-500/20 bg-red-500/5 p-3">
-                    <div className="mb-2 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Package size={13} className="text-red-400" />
-                        <span className="text-sm font-medium text-white">{item.name}</span>
+              <>
+                {lowStock.map((item) => {
+                  const days = getDaysUntilDepletion(item);
+                  return (
+                    <div key={item.id} className="rounded-lg border border-red-500/20 bg-red-500/5 p-3">
+                      <div className="mb-2 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Package size={13} className="text-red-400" />
+                          <span className="text-sm font-medium text-white">{item.name}</span>
+                        </div>
+                        <span className="text-xs text-red-400">
+                          {days === Infinity ? "∞" : `~${days}gg`}
+                        </span>
                       </div>
-                      <span className="text-xs text-red-400">
-                        {days === Infinity ? "∞" : `~${days}gg`}
-                      </span>
+                      <div className="flex items-center justify-between text-xs text-white/40 mb-1.5">
+                        <span>{item.current_stock} {item.unit} rimasti</span>
+                        <span>soglia: {item.threshold} {item.unit}</span>
+                      </div>
+                      <Progress
+                        value={pct(item.current_stock, item.threshold)}
+                        barClassName="bg-red-500"
+                      />
                     </div>
-                    <div className="flex items-center justify-between text-xs text-white/40 mb-1.5">
-                      <span>{item.current_stock} {item.unit} rimasti</span>
-                      <span>soglia: {item.threshold} {item.unit}</span>
-                    </div>
-                    <Progress
-                      value={pct(item.current_stock, item.threshold)}
-                      barClassName="bg-red-500"
-                    />
-                  </div>
-                );
-              })
+                  );
+                })}
+                {/* Copy grocery list */}
+                <button
+                  onClick={() => {
+                    const text = lowStock
+                      .map((i) => `• ${i.name} (${i.current_stock} ${i.unit} rimasti)`)
+                      .join("\n");
+                    navigator.clipboard.writeText(`Lista spesa:\n${text}`).then(() => {
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    });
+                  }}
+                  className={cn(
+                    "w-full flex items-center justify-center gap-2 rounded-xl border py-3 text-sm font-semibold transition-all active:scale-95",
+                    copied
+                      ? "border-green-500/40 bg-green-500/10 text-green-400"
+                      : "border-white/15 bg-white/5 text-white/60 hover:bg-white/8 hover:text-white"
+                  )}
+                >
+                  {copied ? <Check size={15} /> : <Copy size={15} />}
+                  {copied ? "Lista copiata!" : "Copia lista spesa"}
+                </button>
+              </>
             )}
           </CardContent>
         </Card>
@@ -157,7 +184,7 @@ export default function PhysicalPage() {
                     />
                   </div>
                   {item.auto_reorder && (
-                    <ShoppingCart size={12} className="flex-shrink-0 text-white/20" title="Auto-riordino attivo" />
+                    <ShoppingCart size={12} className="flex-shrink-0 text-white/20" aria-label="Auto-riordino attivo" />
                   )}
                 </div>
               );

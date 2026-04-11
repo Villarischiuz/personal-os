@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { QuickCaptureOverlay } from "@/components/global/QuickCaptureOverlay";
+import { BurnoutBanner } from "@/components/global/BurnoutBanner";
+import { AICopilot } from "@/components/global/AICopilot";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,8 +33,11 @@ export default function RootLayout({
     >
       <body className="min-h-full bg-[hsl(222,47%,6%)] text-white antialiased">
         <Sidebar />
-        {/* Main content — offset for sidebar */}
-        <main className="ml-56 min-h-screen px-10 py-10">{children}</main>
+        {/* Main content — offset for sidebar on desktop */}
+        <main className="md:ml-56 min-h-screen px-4 py-6 md:px-10 md:py-10 pb-[220px] md:pb-10">{children}</main>
+        <QuickCaptureOverlay />
+        <BurnoutBanner />
+        <AICopilot />
       </body>
     </html>
   );

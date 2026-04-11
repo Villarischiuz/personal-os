@@ -9,6 +9,8 @@ import { EnergyCalendar } from "@/components/calendar/EnergyCalendar";
 import { WeeklyPlanner } from "@/components/calendar/WeeklyPlanner";
 import { DailyScheduleCalendar } from "@/components/calendar/DailyScheduleCalendar";
 import { useWeeklySchedule } from "@/lib/useWeeklySchedule";
+import { AIBootBanner } from "@/components/global/AIBootBanner";
+import { CalendarViews } from "@/components/calendar/CalendarViews";
 import { Zap, Inbox, Clock } from "@/lib/icons";
 
 let _nextId = 100;
@@ -55,6 +57,9 @@ export default function CalendarPage() {
 
   return (
     <div className="space-y-8">
+      {/* AI Boot Banner */}
+      <AIBootBanner />
+
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-white">Calendario Energia</h1>
@@ -97,18 +102,18 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      {/* Daily Schedule Calendar */}
+      {/* Multi-view Calendar Engine */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Clock size={14} className="text-white/40" />
           <h2 className="text-sm font-semibold text-white/60 uppercase tracking-wider">
-            Agenda Giornaliera
+            Calendario
           </h2>
         </div>
-        <DailyScheduleCalendar
+        <CalendarViews
           weeklyEvents={weeklyEvents}
-          selectedDayOfWeek={selectedDow}
-          onDayChange={setSelectedDow}
+          selectedDow={selectedDow}
+          onDowChange={setSelectedDow}
         />
       </div>
     </div>

@@ -62,4 +62,21 @@ export {
   // Review
   FileText,
   RefreshCw,
+  // Focus / clipboard
+  Maximize2,
+  Minimize2,
+  Copy,
+  Check,
+  // Navigation
+  ChevronLeft,
+  // Study
+  GraduationCap,
+  BookOpen,
+  ChevronDown,
+  ChevronUp,
+  RotateCcw as FlipIcon,
+  ExternalLink,
+  PlayCircle,
+  Link as LinkIcon,
+  FileText as FileTextIcon,
 } from "lucide-react";

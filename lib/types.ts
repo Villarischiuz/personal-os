@@ -21,6 +21,8 @@ export interface Task {
   created_at: string;
   /** Optional assigned energy block for calendar view */
   energy_block?: EnergyBlock;
+  /** Optional ISO date "YYYY-MM-DD" for day-pinned tasks */
+  date?: string;
   /** Optional notes */
   notes?: string;
 }
