@@ -1,65 +1,111 @@
-import Image from "next/image";
+import { SystemTrafficLight } from "@/components/dashboard/SystemTrafficLight";
+import { PerformanceChart } from "@/components/dashboard/PerformanceChart";
+import { StreakCounter } from "@/components/dashboard/StreakCounter";
+import { DailySnapshot } from "@/components/dashboard/DailySnapshot";
+import { MOCK_DAILY_LOGS, MOCK_TASKS, MOCK_MACRO_LOGS } from "@/lib/mock-data";
+import {
+  buildPerformanceData,
+  computeStreak,
+  getTasksByStatus,
+} from "@/lib/computations";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ClipboardList, CheckCircle, Clock, Loader2 } from "@/lib/icons";
 
-export default function Home() {
+export default function CommandCenter() {
+  // Derive all data server-side (pure computation, no DB yet)
+  const sortedLogs = [...MOCK_DAILY_LOGS].sort((a, b) =>
+    b.date.localeCompare(a.date)
+  );
+  const todayLog = sortedLogs[0];
+  const todayMacros = MOCK_MACRO_LOGS[MOCK_MACRO_LOGS.length - 1];
+  const performanceData = buildPerformanceData(MOCK_DAILY_LOGS);
+  const streak = computeStreak(MOCK_DAILY_LOGS);
+
+  const inboxTasks = getTasksByStatus(MOCK_TASKS, "Inbox");
+  const inProgressTasks = getTasksByStatus(MOCK_TASKS, "InProgress");
+  const doneTasks = getTasksByStatus(MOCK_TASKS, "Done");
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="min-h-screen px-6 py-8">
+      {/* Header */}
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-black tracking-tight text-white">
+            Command Center
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-1 text-sm text-white/40">
+            {new Date().toLocaleDateString("en-GB", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="flex items-center gap-2">
+          <Badge variant="muted">Mock Data</Badge>
+          <Badge variant="blue">Phase 2</Badge>
         </div>
-      </main>
+      </div>
+
+      {/* Row 1: Traffic light + Streak + Task pipeline */}
+      <div className="mb-5 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <SystemTrafficLight todayLog={todayLog} />
+        <StreakCounter streak={streak} />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Task Pipeline</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2">
+              <div className="flex items-center gap-2 text-sm text-white/60">
+                <ClipboardList size={15} className="text-white/30" />
+                Inbox
+              </div>
+              <span className="font-mono text-sm font-bold text-white">
+                {inboxTasks.length}
+              </span>
+            </div>
+            <div className="flex items-center justify-between rounded-lg bg-blue-500/10 px-3 py-2 border border-blue-500/20">
+              <div className="flex items-center gap-2 text-sm text-blue-400">
+                <Loader2 size={15} />
+                In Progress
+              </div>
+              <span className="font-mono text-sm font-bold text-blue-400">
+                {inProgressTasks.length}
+              </span>
+            </div>
+            <div className="flex items-center justify-between rounded-lg bg-green-500/10 px-3 py-2 border border-green-500/20">
+              <div className="flex items-center gap-2 text-sm text-green-400">
+                <CheckCircle size={15} />
+                Done today
+              </div>
+              <span className="font-mono text-sm font-bold text-green-400">
+                {doneTasks.length}
+              </span>
+            </div>
+            <div className="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2">
+              <div className="flex items-center gap-2 text-sm text-white/60">
+                <Clock size={15} className="text-white/30" />
+                Focus mins today
+              </div>
+              <span className="font-mono text-sm font-bold text-white">
+                {todayLog.pomodoros_completed * 25}m
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Row 2: Performance chart full width */}
+      <div className="mb-5">
+        <PerformanceChart data={performanceData} />
+      </div>
+
+      {/* Row 3: Biometrics + Macros */}
+      <DailySnapshot log={todayLog} macros={todayMacros} />
     </div>
   );
 }

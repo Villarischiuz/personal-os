@@ -1,26 +1,92 @@
 @import "tailwindcss";
 
+/* ── Shadcn-compatible CSS custom properties ─────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: 222 47% 6%;
+  --foreground: 210 40% 96%;
+
+  --card: 222 47% 9%;
+  --card-foreground: 210 40% 96%;
+
+  --popover: 222 47% 9%;
+  --popover-foreground: 210 40% 96%;
+
+  --primary: 210 100% 56%;
+  --primary-foreground: 222 47% 6%;
+
+  --secondary: 215 27% 17%;
+  --secondary-foreground: 210 40% 96%;
+
+  --muted: 215 27% 17%;
+  --muted-foreground: 215 20% 55%;
+
+  --accent: 215 27% 17%;
+  --accent-foreground: 210 40% 96%;
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 215 27% 17%;
+  --input: 215 27% 17%;
+  --ring: 210 100% 56%;
+
+  --radius: 0.5rem;
+
+  /* Status colours */
+  --green: 142 71% 45%;
+  --yellow: 43 96% 56%;
+  --red: 0 84% 60%;
+
+  /* Chart colours */
+  --chart-sleep: 210 100% 56%;
+  --chart-productivity: 142 71% 45%;
+  --chart-rpe: 43 96% 56%;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-destructive: hsl(var(--destructive));
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --radius: var(--radius);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: hsl(var(--border));
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Scrollbar styling ─────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
 }
