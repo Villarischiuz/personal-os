@@ -12,7 +12,7 @@ interface Props {
 
 const CONFIG = {
   green: {
-    label: "Systems Optimal",
+    label: "Sistema Ottimale",
     bg: "bg-green-500",
     glow: "shadow-[0_0_40px_rgba(34,197,94,0.4)]",
     ring: "ring-green-500/40",
@@ -21,7 +21,7 @@ const CONFIG = {
     pulse: "animate-pulse",
   },
   yellow: {
-    label: "Monitor Closely",
+    label: "Monitorare",
     bg: "bg-yellow-500",
     glow: "shadow-[0_0_40px_rgba(234,179,8,0.4)]",
     ring: "ring-yellow-500/40",
@@ -30,7 +30,7 @@ const CONFIG = {
     pulse: "",
   },
   red: {
-    label: "Recovery Priority",
+    label: "Recupero Prioritario",
     bg: "bg-red-500",
     glow: "shadow-[0_0_40px_rgba(239,68,68,0.4)]",
     ring: "ring-red-500/40",
@@ -60,7 +60,7 @@ export function SystemTrafficLight({ todayLog }: Props) {
       />
 
       <CardHeader>
-        <CardTitle>System Status</CardTitle>
+        <CardTitle>Stato Sistema</CardTitle>
         <span className={cn("text-xs font-mono", cfg.text)}>{status.score}/100</span>
       </CardHeader>
 
@@ -86,7 +86,7 @@ export function SystemTrafficLight({ todayLog }: Props) {
             </div>
 
             {status.flags.length === 0 ? (
-              <p className="mt-1 text-sm text-white/40">All metrics within target range</p>
+              <p className="mt-1 text-sm text-white/40">Tutti i parametri nei range target</p>
             ) : (
               <ul className="mt-2 space-y-1">
                 {status.flags.map((flag) => (
@@ -118,7 +118,7 @@ export function SystemTrafficLight({ todayLog }: Props) {
             />
           ))}
           <span className="ml-2 text-xs text-white/30">
-            {new Date(todayLog.date).toLocaleDateString("en-GB", {
+            {new Date(todayLog.date).toLocaleDateString("it-IT", {
               weekday: "long",
               day: "numeric",
               month: "long",

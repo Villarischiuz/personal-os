@@ -44,7 +44,7 @@ export function InboxPanel({ tasks, onAssign }: Props) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/10 py-10 text-center">
         <Inbox size={24} className="text-white/20" />
-        <p className="text-sm text-white/30">Inbox empty — great work.</p>
+        <p className="text-sm text-white/30">In Arrivo vuota — ottimo lavoro.</p>
       </div>
     );
   }
@@ -80,7 +80,7 @@ export function InboxPanel({ tasks, onAssign }: Props) {
 
           {/* Assign buttons */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-white/25 mr-0.5">Assign →</span>
+            <span className="text-[10px] text-white/25 mr-0.5">Assegna →</span>
             {BLOCKS.map(({ block, label, color }) => (
               <button
                 key={block}

@@ -52,7 +52,7 @@ export function QuickCapture({ onCapture }: Props) {
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           onKeyDown={handleKeyDown}
-          placeholder="Capture a task instantly… (Enter to add)"
+          placeholder="Cattura un'attività… (Invio per aggiungere)"
           className="flex-1 bg-transparent text-sm text-white placeholder-white/25 outline-none"
         />
         <Button
@@ -66,7 +66,7 @@ export function QuickCapture({ onCapture }: Props) {
         </Button>
       </div>
       <p className="mt-1.5 px-1 text-xs text-white/20">
-        Captured tasks go to Inbox — process them into energy blocks below
+        I task catturati vanno in Arrivo — assegnali ai blocchi energia qui sotto
       </p>
     </form>
   );

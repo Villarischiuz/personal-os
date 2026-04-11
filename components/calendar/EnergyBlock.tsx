@@ -21,7 +21,7 @@ const BLOCK_META: Record<EnergyBlock, BlockMeta> = {
   Peak: {
     label: "Peak",
     timeRange: "6:00 – 12:00",
-    subtitle: "Deep work window",
+    subtitle: "Finestra deep work",
     energyRange: "Energy 4–5",
     icon: Sun,
     accent: "text-amber-400",
@@ -33,7 +33,7 @@ const BLOCK_META: Record<EnergyBlock, BlockMeta> = {
   Trough: {
     label: "Trough",
     timeRange: "13:00 – 15:00",
-    subtitle: "Admin & low-effort",
+    subtitle: "Admin & bassa energia",
     energyRange: "Energy 1–2",
     icon: Sunset,
     accent: "text-sky-400",
@@ -45,7 +45,7 @@ const BLOCK_META: Record<EnergyBlock, BlockMeta> = {
   Rebound: {
     label: "Rebound",
     timeRange: "17:00 – 21:00",
-    subtitle: "Learning & review",
+    subtitle: "Studio & revisione",
     energyRange: "Energy 3",
     icon: Moon,
     accent: "text-violet-400",
@@ -90,7 +90,7 @@ export function EnergyBlockPanel({ block, tasks, onRemove }: Props) {
       <div className="flex-1 space-y-1.5 p-3 min-h-[120px]">
         {tasks.length === 0 ? (
           <div className="flex h-full items-center justify-center py-6">
-            <p className="text-xs text-white/20">No tasks assigned</p>
+            <p className="text-xs text-white/20">Nessun task assegnato</p>
           </div>
         ) : (
           tasks.map((task) => (
@@ -128,8 +128,8 @@ export function EnergyBlockPanel({ block, tasks, onRemove }: Props) {
       {/* Footer count */}
       <div className="border-t border-white/6 px-4 py-2">
         <p className="text-[10px] text-white/25">
-          {tasks.length} task{tasks.length !== 1 ? "s" : ""} ·{" "}
-          {tasks.reduce((sum, t) => sum + t.duration_mins, 0)}m total
+          {tasks.length} attività ·{" "}
+          {tasks.reduce((sum, t) => sum + t.duration_mins, 0)}m totali
         </p>
       </div>
     </div>

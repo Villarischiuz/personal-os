@@ -25,13 +25,13 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="it"
       className={`${geistSans.variable} ${geistMono.variable} h-full`}
     >
       <body className="min-h-full bg-[hsl(222,47%,6%)] text-white antialiased">
         <Sidebar />
         {/* Main content — offset for sidebar */}
-        <main className="ml-56 min-h-screen">{children}</main>
+        <main className="ml-56 min-h-screen px-10 py-10">{children}</main>
       </body>
     </html>
   );

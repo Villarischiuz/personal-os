@@ -6,7 +6,8 @@ import type { Task, EnergyBlock } from "@/lib/types";
 import { QuickCapture } from "@/components/calendar/QuickCapture";
 import { InboxPanel } from "@/components/calendar/InboxPanel";
 import { EnergyCalendar } from "@/components/calendar/EnergyCalendar";
-import { Zap, Inbox } from "@/lib/icons";
+import { Zap, Inbox, Clock } from "@/lib/icons";
+import { DailyScheduleCalendar } from "@/components/calendar/DailyScheduleCalendar";
 
 let _nextId = 100;
 function genId() {
@@ -57,9 +58,9 @@ export default function CalendarPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Energy Calendar</h1>
+        <h1 className="text-2xl font-bold text-white">Calendario Energia</h1>
         <p className="mt-1 text-sm text-white/40">
-          Capture tasks, then assign them to your circadian rhythm windows.
+          Cattura i task e assegnali alle finestre del tuo ritmo circadiano.
         </p>
       </div>
 
@@ -73,7 +74,7 @@ export default function CalendarPage() {
           <div className="flex items-center gap-2">
             <Inbox size={14} className="text-white/40" />
             <h2 className="text-sm font-semibold text-white/60 uppercase tracking-wider">
-              Inbox
+              In Arrivo
             </h2>
             {inboxTasks.length > 0 && (
               <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-[10px] font-medium text-white/50">
@@ -89,11 +90,22 @@ export default function CalendarPage() {
           <div className="flex items-center gap-2">
             <Zap size={14} className="text-white/40" />
             <h2 className="text-sm font-semibold text-white/60 uppercase tracking-wider">
-              Circadian Schedule
+              Programma Circadiano
             </h2>
           </div>
           <EnergyCalendar tasks={calendarTasks} onRemove={removeFromBlock} />
         </div>
+      </div>
+
+      {/* Daily Schedule Calendar */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Clock size={14} className="text-white/40" />
+          <h2 className="text-sm font-semibold text-white/60 uppercase tracking-wider">
+            Agenda Giornaliera
+          </h2>
+        </div>
+        <DailyScheduleCalendar />
       </div>
     </div>
   );

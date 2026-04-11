@@ -23,19 +23,19 @@ export function computeSystemStatus(log: DailyLog): SystemStatus {
   let score = 100;
 
   if (log.sleep_hours < SLEEP_THRESHOLD) {
-    flags.push(`Sleep deficit (${log.sleep_hours}h < ${SLEEP_THRESHOLD}h)`);
+    flags.push(`Deficit sonno (${log.sleep_hours}h < ${SLEEP_THRESHOLD}h)`);
     score -= 30;
   }
   if (!log.macros_hit) {
-    flags.push("Macros not hit");
+    flags.push("Macro non centrate");
     score -= 25;
   }
   if (log.training_rpe >= HIGH_RPE_THRESHOLD) {
-    flags.push(`High training load (RPE ${log.training_rpe})`);
+    flags.push(`Carico allenamento alto (RPE ${log.training_rpe})`);
     score -= 15;
   }
   if (log.rhr > 65) {
-    flags.push(`Elevated RHR (${log.rhr} bpm)`);
+    flags.push(`FC riposo elevata (${log.rhr} bpm)`);
     score -= 10;
   }
 

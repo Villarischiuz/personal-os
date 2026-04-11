@@ -16,8 +16,8 @@ export function StreakCounter({ streak }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Adherence Streak</CardTitle>
-        <span className="text-xs text-white/30">Sleep ≥7h + Macros hit</span>
+        <CardTitle>Streak Aderenza</CardTitle>
+        <span className="text-xs text-white/30">Sonno ≥7h + Macro centrate</span>
       </CardHeader>
 
       <CardContent>
@@ -41,11 +41,11 @@ export function StreakCounter({ streak }: Props) {
                 {isOnFire && <Flame size={14} className="text-orange-400" />}
                 <span className="text-sm font-semibold text-white">
                   {streak.current_streak === 1
-                    ? "1 day"
-                    : `${streak.current_streak} days`}
+                    ? "1 giorno"
+                    : `${streak.current_streak} giorni`}
                 </span>
               </div>
-              <p className="text-xs text-white/40 mt-0.5">current streak</p>
+              <p className="text-xs text-white/40 mt-0.5">streak attuale</p>
             </div>
           </div>
 
@@ -57,9 +57,9 @@ export function StreakCounter({ streak }: Props) {
             <Trophy size={20} className="text-yellow-500/70 flex-shrink-0" />
             <div>
               <span className="text-sm font-semibold text-white">
-                {streak.longest_streak} days
+                {streak.longest_streak} giorni
               </span>
-              <p className="text-xs text-white/40 mt-0.5">personal best</p>
+              <p className="text-xs text-white/40 mt-0.5">record personale</p>
             </div>
           </div>
 
@@ -73,7 +73,7 @@ export function StreakCounter({ streak }: Props) {
                   <span className="text-xs text-white/50">
                     {formatShortDate(streak.last_broken)}
                   </span>
-                  <p className="text-xs text-white/30">last broken</p>
+                  <p className="text-xs text-white/30">ultima interruzione</p>
                 </div>
               </div>
             </>
@@ -100,7 +100,7 @@ export function StreakCounter({ streak }: Props) {
               />
             );
           })}
-          <span className="ml-1 self-center text-xs text-white/25">14 days</span>
+          <span className="ml-1 self-center text-xs text-white/25">14 giorni</span>
         </div>
       </CardContent>
     </Card>

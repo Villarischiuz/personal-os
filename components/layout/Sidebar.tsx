@@ -12,10 +12,10 @@ import {
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Command Center", icon: LayoutDashboard },
-  { href: "/calendar", label: "Energy Calendar", icon: Calendar },
-  { href: "/physical", label: "Physical Engine", icon: Dumbbell },
-  { href: "/work", label: "Work Pipeline", icon: BriefcaseBusiness },
+  { href: "/", label: "Centro Comando", icon: LayoutDashboard },
+  { href: "/calendar", label: "Calendario", icon: Calendar },
+  { href: "/physical", label: "Piano Fisico", icon: Dumbbell },
+  { href: "/work", label: "Piano Lavoro", icon: BriefcaseBusiness },
 ] as const;
 
 export function Sidebar() {
@@ -59,7 +59,7 @@ export function Sidebar() {
       {/* Footer */}
       <div className="px-5 py-4 border-t border-white/10">
         <p className="text-xs text-white/25 leading-relaxed">
-          Cognitive OS · Data is local mock
+          OS Personale · Dati mock locali
         </p>
       </div>
     </aside>

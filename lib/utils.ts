@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDate(isoDate: string): string {
-  return new Date(isoDate).toLocaleDateString("en-GB", {
+  return new Date(isoDate).toLocaleDateString("it-IT", {
     weekday: "short",
     day: "numeric",
     month: "short",
@@ -14,7 +14,7 @@ export function formatDate(isoDate: string): string {
 }
 
 export function formatShortDate(isoDate: string): string {
-  return new Date(isoDate).toLocaleDateString("en-GB", {
+  return new Date(isoDate).toLocaleDateString("it-IT", {
     day: "numeric",
     month: "short",
   });

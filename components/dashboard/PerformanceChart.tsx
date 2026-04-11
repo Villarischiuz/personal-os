@@ -54,12 +54,12 @@ export function PerformanceChart({ data }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Holistic Performance — Last 7 Days</CardTitle>
+        <CardTitle>Performance Olistica — Ultimi 7 Giorni</CardTitle>
         <div className="flex gap-3">
           {[
-            { color: COLORS.sleep, label: "Sleep (h)" },
-            { color: COLORS.productivity, label: "Productivity" },
-            { color: COLORS.rpe, label: "Training RPE" },
+            { color: COLORS.sleep, label: "Sonno (h)" },
+            { color: COLORS.productivity, label: "Produttività" },
+            { color: COLORS.rpe, label: "RPE Allenamento" },
           ].map(({ color, label }) => (
             <div key={label} className="flex items-center gap-1.5">
               <div className="h-2 w-2 rounded-full" style={{ background: color }} />
@@ -122,7 +122,7 @@ export function PerformanceChart({ data }: Props) {
               <Bar
                 yAxisId="sleep"
                 dataKey="sleep_hours"
-                name="sleep"
+                name="sonno"
                 fill={COLORS.sleep}
                 fillOpacity={0.8}
                 radius={[4, 4, 0, 0]}
@@ -134,7 +134,7 @@ export function PerformanceChart({ data }: Props) {
                 yAxisId="score"
                 type="monotone"
                 dataKey="productivity_score"
-                name="productivity"
+                name="produttività"
                 stroke={COLORS.productivity}
                 strokeWidth={2.5}
                 dot={{ fill: COLORS.productivity, r: 4, strokeWidth: 0 }}
@@ -146,7 +146,7 @@ export function PerformanceChart({ data }: Props) {
                 yAxisId="score"
                 type="monotone"
                 dataKey="training_rpe"
-                name="training RPE"
+                name="RPE allenamento"
                 stroke={COLORS.rpe}
                 strokeWidth={2.5}
                 strokeDasharray="5 3"

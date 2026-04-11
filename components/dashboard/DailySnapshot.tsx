@@ -54,18 +54,18 @@ export function DailySnapshot({ log, macros }: Props) {
       {/* Biometrics card */}
       <Card>
         <CardHeader>
-          <CardTitle>Today&apos;s Biometrics</CardTitle>
+          <CardTitle>Biometria di Oggi</CardTitle>
         </CardHeader>
         <CardContent>
           <MetricRow
             icon={<Moon size={16} />}
-            label="Sleep"
+            label="Sonno"
             value={`${log.sleep_hours}h`}
             status={sleepOk ? "ok" : "bad"}
           />
           <MetricRow
             icon={<Heart size={16} />}
-            label="Resting HR"
+            label="FC Riposo"
             sub="bpm"
             value={`${log.rhr}`}
             status={rhrOk ? "ok" : "warn"}
@@ -81,9 +81,9 @@ export function DailySnapshot({ log, macros }: Props) {
           )}
           <MetricRow
             icon={<Target size={16} />}
-            label="Training RPE"
-            sub="0 = rest day"
-            value={log.training_rpe === 0 ? "Rest" : `${log.training_rpe}/10`}
+            label="RPE Allenamento"
+            sub="0 = giorno riposo"
+            value={log.training_rpe === 0 ? "Riposo" : `${log.training_rpe}/10`}
             status={
               log.training_rpe === 0
                 ? undefined
@@ -95,7 +95,7 @@ export function DailySnapshot({ log, macros }: Props) {
           {log.water_ml && (
             <MetricRow
               icon={<Droplets size={16} />}
-              label="Hydration"
+              label="Idratazione"
               sub="ml"
               value={`${log.water_ml}`}
               status={log.water_ml >= 2500 ? "ok" : "warn"}
@@ -103,7 +103,7 @@ export function DailySnapshot({ log, macros }: Props) {
           )}
           <MetricRow
             icon={<Brain size={16} />}
-            label="Pomodoros"
+            label="Pomodori"
             value={`${log.pomodoros_completed}`}
             status={log.pomodoros_completed >= 6 ? "ok" : log.pomodoros_completed >= 3 ? "warn" : "bad"}
           />
@@ -113,16 +113,16 @@ export function DailySnapshot({ log, macros }: Props) {
       {/* Macros card */}
       <Card>
         <CardHeader>
-          <CardTitle>Nutrition</CardTitle>
+          <CardTitle>Nutrizione</CardTitle>
           <span className={cn("text-xs font-semibold", log.macros_hit ? "text-green-400" : "text-yellow-400")}>
-            {log.macros_hit ? "✓ Targets hit" : "In progress"}
+            {log.macros_hit ? "✓ Obiettivi raggiunti" : "In corso"}
           </span>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Calories */}
           <div>
             <div className="flex justify-between text-xs mb-1.5">
-              <span className="text-white/50">Calories</span>
+              <span className="text-white/50">Calorie</span>
               <span className="font-mono text-white/70">
                 {macros.calories_actual} / {macros.calories_target} kcal
               </span>
@@ -136,7 +136,7 @@ export function DailySnapshot({ log, macros }: Props) {
           {/* Protein */}
           <div>
             <div className="flex justify-between text-xs mb-1.5">
-              <span className="text-white/50">Protein</span>
+              <span className="text-white/50">Proteine</span>
               <span className="font-mono text-white/70">
                 {macros.protein_g_actual}g / {macros.protein_g_target}g
               </span>
@@ -150,7 +150,7 @@ export function DailySnapshot({ log, macros }: Props) {
           {/* Carbs */}
           <div>
             <div className="flex justify-between text-xs mb-1.5">
-              <span className="text-white/50">Carbs</span>
+              <span className="text-white/50">Carboidrati</span>
               <span className="font-mono text-white/70">
                 {macros.carbs_g_actual}g / {macros.carbs_g_target}g
               </span>
@@ -164,7 +164,7 @@ export function DailySnapshot({ log, macros }: Props) {
           {/* Fat */}
           <div>
             <div className="flex justify-between text-xs mb-1.5">
-              <span className="text-white/50">Fat</span>
+              <span className="text-white/50">Grassi</span>
               <span className="font-mono text-white/70">
                 {macros.fat_g_actual}g / {macros.fat_g_target}g
               </span>

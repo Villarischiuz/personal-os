@@ -27,15 +27,15 @@ export default function CommandCenter() {
   const doneTasks = getTasksByStatus(MOCK_TASKS, "Done");
 
   return (
-    <div className="min-h-screen px-6 py-8">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="mb-8 flex items-start justify-between">
+      <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-black tracking-tight text-white">
-            Command Center
+            Centro Comando
           </h1>
           <p className="mt-1 text-sm text-white/40">
-            {new Date().toLocaleDateString("en-GB", {
+            {new Date().toLocaleDateString("it-IT", {
               weekday: "long",
               day: "numeric",
               month: "long",
@@ -44,25 +44,25 @@ export default function CommandCenter() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="muted">Mock Data</Badge>
-          <Badge variant="blue">Phase 2</Badge>
+          <Badge variant="muted">Dati Mock</Badge>
+          <Badge variant="blue">v1.0</Badge>
         </div>
       </div>
 
-      {/* Row 1: Traffic light + Streak + Task pipeline */}
-      <div className="mb-5 grid grid-cols-1 gap-4 md:grid-cols-3">
+      {/* Riga 1: Semaforo + Streak + Pipeline */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <SystemTrafficLight todayLog={todayLog} />
         <StreakCounter streak={streak} />
 
         <Card>
           <CardHeader>
-            <CardTitle>Task Pipeline</CardTitle>
+            <CardTitle>Pipeline Attività</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2">
               <div className="flex items-center gap-2 text-sm text-white/60">
                 <ClipboardList size={15} className="text-white/30" />
-                Inbox
+                In Arrivo
               </div>
               <span className="font-mono text-sm font-bold text-white">
                 {inboxTasks.length}
@@ -71,7 +71,7 @@ export default function CommandCenter() {
             <div className="flex items-center justify-between rounded-lg bg-blue-500/10 px-3 py-2 border border-blue-500/20">
               <div className="flex items-center gap-2 text-sm text-blue-400">
                 <Loader2 size={15} />
-                In Progress
+                In Corso
               </div>
               <span className="font-mono text-sm font-bold text-blue-400">
                 {inProgressTasks.length}
@@ -80,7 +80,7 @@ export default function CommandCenter() {
             <div className="flex items-center justify-between rounded-lg bg-green-500/10 px-3 py-2 border border-green-500/20">
               <div className="flex items-center gap-2 text-sm text-green-400">
                 <CheckCircle size={15} />
-                Done today
+                Completati oggi
               </div>
               <span className="font-mono text-sm font-bold text-green-400">
                 {doneTasks.length}
@@ -89,7 +89,7 @@ export default function CommandCenter() {
             <div className="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2">
               <div className="flex items-center gap-2 text-sm text-white/60">
                 <Clock size={15} className="text-white/30" />
-                Focus mins today
+                Minuti focus oggi
               </div>
               <span className="font-mono text-sm font-bold text-white">
                 {todayLog.pomodoros_completed * 25}m
@@ -99,12 +99,12 @@ export default function CommandCenter() {
         </Card>
       </div>
 
-      {/* Row 2: Performance chart full width */}
-      <div className="mb-5">
+      {/* Riga 2: Grafico performance */}
+      <div>
         <PerformanceChart data={performanceData} />
       </div>
 
-      {/* Row 3: Biometrics + Macros */}
+      {/* Riga 3: Biometria + Macro */}
       <DailySnapshot log={todayLog} macros={todayMacros} />
     </div>
   );
