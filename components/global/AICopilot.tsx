@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef } from "react";
-import { X, Zap, Brain, RefreshCw } from "@/lib/icons";
+import { X, Brain, RefreshCw } from "@/lib/icons";
 import { useKanbanStore } from "@/lib/stores/workStore";
 import { cn } from "@/lib/utils";
 
@@ -158,7 +158,7 @@ export function AICopilot() {
 
             {!response && !loading && (
               <p className="px-5 pb-6 text-xs text-white/25 text-center">
-                Seleziona un'azione — l'AI analizzerà i tuoi task attivi
+                Seleziona un&apos;azione: l&apos;AI analizzerà i tuoi task attivi
               </p>
             )}
           </div>

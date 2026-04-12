@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useKanbanStore } from "@/lib/stores/workStore";
 import { useStudyStore } from "@/lib/stores/studyStore";
 import { cn } from "@/lib/utils";
@@ -239,11 +239,13 @@ const TITLES: Record<CrudContext["type"], { add: string; edit: string }> = {
 export function CrudSheet({ open, context, onClose }: Props) {
   // Use bottom sheet on mobile, right side on desktop
   // We detect via CSS (always render bottom, override with md class via conditional)
-  const [isMobile, setIsMobile] = useState(true);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return !window.matchMedia("(min-width: 768px)").matches;
+  });
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)");
-    setIsMobile(!mq.matches);
     const handler = (e: MediaQueryListEvent) => setIsMobile(!e.matches);
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);

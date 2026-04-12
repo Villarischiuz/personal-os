@@ -1,3 +1,4 @@
+import { format, parseISO } from "date-fns";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -5,8 +6,16 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function localDateString(date: Date = new Date()): string {
+  return format(date, "yyyy-MM-dd");
+}
+
+export function parseLocalDate(isoDate: string): Date {
+  return parseISO(isoDate);
+}
+
 export function formatDate(isoDate: string): string {
-  return new Date(isoDate).toLocaleDateString("it-IT", {
+  return parseLocalDate(isoDate).toLocaleDateString("it-IT", {
     weekday: "short",
     day: "numeric",
     month: "short",
@@ -14,14 +23,14 @@ export function formatDate(isoDate: string): string {
 }
 
 export function formatShortDate(isoDate: string): string {
-  return new Date(isoDate).toLocaleDateString("it-IT", {
+  return parseLocalDate(isoDate).toLocaleDateString("it-IT", {
     day: "numeric",
     month: "short",
   });
 }
 
 export function today(): string {
-  return new Date().toISOString().split("T")[0];
+  return localDateString();
 }
 
 export function pct(actual: number, target: number): number {

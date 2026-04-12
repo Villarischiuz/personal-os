@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Plus, X, Clock, ChevronRight } from "@/lib/icons";
-import { cn } from "@/lib/utils";
+import { cn, localDateString } from "@/lib/utils";
 import type { WeeklyEvent, EventColor } from "@/lib/types";
 
 // ─── Types ────────────────────────────────────────────────────
@@ -44,8 +44,6 @@ const COLORS: EventColor[] = ["blue", "green", "orange", "violet", "rose"];
 let _nextId = 500;
 function genId() { return `oo-${++_nextId}`; }
 
-function isoDate(d: Date) { return d.toISOString().split("T")[0]; }
-
 // dayOfWeek: 0=Mon … 6=Sun (matching WeeklyEvent)
 function jsToWeekDay(d: Date): 0|1|2|3|4|5|6 {
   return ((d.getDay() + 6) % 7) as 0|1|2|3|4|5|6;
@@ -77,7 +75,7 @@ export function DailyScheduleCalendar({ weeklyEvents, selectedDayOfWeek, onDayCh
   const diffDays = (selectedDayOfWeek - todayDow + 7) % 7;
   const displayDate = new Date(today);
   displayDate.setDate(today.getDate() + diffDays);
-  const displayIso = isoDate(displayDate);
+  const displayIso = localDateString(displayDate);
 
   const dayLabel = DAYS_IT[selectedDayOfWeek];
   const dateLabel = displayDate.toLocaleDateString("it-IT", { day: "numeric", month: "long" });

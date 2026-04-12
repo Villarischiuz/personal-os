@@ -8,7 +8,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
@@ -53,9 +52,9 @@ function CustomTooltip({
 export function PerformanceChart({ data }: Props) {
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex-wrap gap-3">
         <CardTitle>Performance Olistica — Ultimi 7 Giorni</CardTitle>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           {[
             { color: COLORS.sleep, label: "Sonno (h)" },
             { color: COLORS.productivity, label: "Produttività" },

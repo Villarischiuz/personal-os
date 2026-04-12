@@ -11,12 +11,13 @@ import type {
   WorkoutEntry,
   MacroLog,
 } from "./types";
+import { localDateString } from "./utils";
 
 // ─── HELPER ──────────────────────────────────────────────────
 function daysAgo(n: number): string {
   const d = new Date();
   d.setDate(d.getDate() - n);
-  return d.toISOString().split("T")[0];
+  return localDateString(d);
 }
 
 // ─── TASKS ───────────────────────────────────────────────────

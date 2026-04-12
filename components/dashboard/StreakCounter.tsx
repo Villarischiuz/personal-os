@@ -21,7 +21,7 @@ export function StreakCounter({ streak }: Props) {
       </CardHeader>
 
       <CardContent>
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-4 xl:flex-nowrap xl:justify-between">
           {/* Current streak */}
           <div className="flex items-center gap-3">
             <div

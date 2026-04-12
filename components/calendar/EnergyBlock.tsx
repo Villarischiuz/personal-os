@@ -1,6 +1,14 @@
 "use client";
 
-import { X, Clock, Sun, Sunset, Moon } from "@/lib/icons";
+import { useState } from "react";
+import { X, Clock, Sun, Sunset, Moon, MoreHorizontal } from "@/lib/icons";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import type { Task, EnergyBlock } from "@/lib/types";
 
@@ -66,14 +74,45 @@ interface Props {
   block: EnergyBlock;
   tasks: Task[];
   onRemove: (taskId: string) => void;
+  onEdit: (task: Task) => void;
+  onDelete: (taskId: string) => void;
+  onDropTask: (taskId: string, block: EnergyBlock) => void;
 }
 
-export function EnergyBlockPanel({ block, tasks, onRemove }: Props) {
+const TASK_DRAG_TYPE = "text/personal-os-task";
+
+export function EnergyBlockPanel({ block, tasks, onRemove, onEdit, onDelete, onDropTask }: Props) {
   const meta = BLOCK_META[block];
   const Icon = meta.icon;
+  const [isOver, setIsOver] = useState(false);
+
+  function readDraggedTaskId(event: React.DragEvent<HTMLDivElement>) {
+    return event.dataTransfer.getData(TASK_DRAG_TYPE);
+  }
+
+  function handleDrop(event: React.DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    const taskId = readDraggedTaskId(event);
+    setIsOver(false);
+    if (!taskId) return;
+    onDropTask(taskId, block);
+  }
 
   return (
-    <div className={cn("flex flex-col rounded-xl border", meta.bg, meta.border)}>
+    <div
+      onDragOver={(event) => {
+        event.preventDefault();
+        setIsOver(true);
+      }}
+      onDragLeave={() => setIsOver(false)}
+      onDrop={handleDrop}
+      className={cn(
+        "flex flex-col rounded-xl border transition-colors",
+        meta.bg,
+        meta.border,
+        isOver && "ring-2 ring-white/10"
+      )}
+    >
       {/* Header */}
       <div className={cn("flex items-start justify-between rounded-t-xl px-4 py-3", meta.headerBg)}>
         <div className="flex items-center gap-2.5">
@@ -90,12 +129,17 @@ export function EnergyBlockPanel({ block, tasks, onRemove }: Props) {
       <div className="flex-1 space-y-1.5 p-3 min-h-[120px]">
         {tasks.length === 0 ? (
           <div className="flex h-full items-center justify-center py-6">
-            <p className="text-xs text-white/20">Nessun task assegnato</p>
+            <p className="text-xs text-white/20">Nessun task assegnato. Trascina qui per pianificare.</p>
           </div>
         ) : (
           tasks.map((task) => (
             <div
               key={task.id}
+              draggable
+              onDragStart={(event) => {
+                event.dataTransfer.effectAllowed = "move";
+                event.dataTransfer.setData(TASK_DRAG_TYPE, task.id);
+              }}
               className="group flex items-start justify-between gap-2 rounded-lg border border-white/6 bg-white/4 px-3 py-2 transition-colors hover:bg-white/7"
             >
               <div className="flex items-start gap-2 min-w-0">
@@ -113,13 +157,33 @@ export function EnergyBlockPanel({ block, tasks, onRemove }: Props) {
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => onRemove(task.id)}
-                className="mt-0.5 flex-shrink-0 rounded p-0.5 text-white/20 opacity-0 transition-all hover:bg-white/10 hover:text-white/60 group-hover:opacity-100"
-                title="Remove from block"
-              >
-                <X size={12} />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => onRemove(task.id)}
+                  className="mt-0.5 flex-shrink-0 rounded p-0.5 text-white/20 opacity-100 transition-all hover:bg-white/10 hover:text-white/60 md:opacity-0 md:group-hover:opacity-100"
+                  title="Remove from block"
+                >
+                  <X size={12} />
+                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex min-h-[24px] min-w-[24px] items-center justify-center rounded p-0.5 text-white/20 opacity-100 transition-all hover:bg-white/10 hover:text-white/60 md:opacity-0 md:group-hover:opacity-100">
+                      <MoreHorizontal size={12} />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onEdit(task)}>Modifica</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onRemove(task.id)}>Rimetti in inbox</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => onDelete(task.id)}
+                      className="text-red-400 focus:text-red-400"
+                    >
+                      Elimina
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
           ))
         )}

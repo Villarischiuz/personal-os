@@ -11,7 +11,7 @@ import type { Task } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
-  Timer, Play, Pause, RotateCcw, SkipForward,
+  Play, Pause, RotateCcw, SkipForward,
   ClipboardList, Loader2, CheckCircle,
   BarChart3, Moon, Zap, Brain, Target, Maximize2, Minimize2, Plus, MoreHorizontal,
 } from "@/lib/icons";
@@ -290,13 +290,31 @@ export default function WorkPage() {
   const { activeTask, setActiveTask } = usePomodoroStore();
   const review = buildWeeklyReview(MOCK_DAILY_LOGS);
   const [sheet, setSheet] = useState<{ open: boolean; ctx: CrudContext | null }>({ open: false, ctx: null });
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<"All" | Task["category"]>("All");
+
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredTasks = tasks.filter((task) => {
+    const matchesSearch =
+      !normalizedSearch ||
+      task.title.toLowerCase().includes(normalizedSearch) ||
+      task.notes?.toLowerCase().includes(normalizedSearch);
+    const matchesCategory = categoryFilter === "All" || task.category === categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
+  const actionableTasks = tasks.filter((task) => task.status === "Todo" || task.status === "InProgress");
+  const focusMinutes = actionableTasks.reduce((sum, task) => sum + task.duration_mins, 0);
+  const filteredDone = filteredTasks.filter((task) => task.status === "Done").length;
+  const filteredCompletionRate = filteredTasks.length
+    ? Math.round((filteredDone / filteredTasks.length) * 100)
+    : 0;
 
   return (
     <>
       <DeepFocusOverlay />
 
-      <div className="space-y-8">
-        <div className="flex items-start justify-between gap-3">
+      <div className="w-full space-y-8">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-white">Piano Lavoro</h1>
             <p className="mt-1 text-sm text-white/40">Kanban · Pomodoro · Revisione settimanale</p>
@@ -309,43 +327,114 @@ export default function WorkPage() {
           </button>
         </div>
 
-        {/* Kanban */}
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {COLUMNS.map((status) => {
-            const meta = STATUS_META[status];
-            const col = tasks.filter((t) => t.status === status);
-            const Icon = status === "Inbox" ? ClipboardList : status === "InProgress" ? Loader2 : status === "Done" ? CheckCircle : Target;
-            return (
-              <div key={status} className={cn("rounded-xl border p-3", meta.bg, meta.border)}>
-                <div className="mb-3 flex items-center gap-2">
-                  <Icon size={13} className={meta.color} />
-                  <span className={cn("text-xs font-semibold uppercase tracking-wide", meta.color)}>
-                    {meta.label}
-                  </span>
-                  <span className="ml-auto flex h-4 w-4 items-center justify-center rounded-full bg-white/10 text-[9px] text-white/40">
-                    {col.length}
-                  </span>
-                </div>
-                <div className="space-y-2">
-                  {col.length === 0 ? (
-                    <p className="py-3 text-center text-[10px] text-white/20">Vuoto</p>
-                  ) : (
-                    col.map((t) => (
-                      <KanbanCard
-                        key={t.id}
-                        task={t}
-                        onAdvance={() => advanceTask(t.id)}
-                        onSelect={() => setActiveTask(activeTask === t.title ? "" : t.title)}
-                        onEdit={() => setSheet({ open: true, ctx: { type: "task", item: t } })}
-                        onDelete={() => deleteTask(t.id)}
-                        isActive={activeTask === t.title}
-                      />
-                    ))
-                  )}
-                </div>
+          {[
+            {
+              label: "Task attivabili",
+              value: actionableTasks.length,
+              hint: "todo + in corso",
+            },
+            {
+              label: "Minuti in coda",
+              value: focusMinutes,
+              hint: "focus pianificato",
+            },
+            {
+              label: "Match correnti",
+              value: filteredTasks.length,
+              hint: normalizedSearch || categoryFilter !== "All" ? "filtri attivi" : "tutti i task",
+            },
+            {
+              label: "Completamento",
+              value: `${filteredCompletionRate}%`,
+              hint: "sul set visibile",
+            },
+          ].map(({ label, value, hint }) => (
+            <div key={label} className="rounded-xl border border-white/8 bg-white/4 px-4 py-3">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-white/30">{label}</p>
+              <p className="mt-2 font-mono text-2xl font-black text-white">{value}</p>
+              <p className="mt-1 text-[11px] text-white/30">{hint}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="rounded-2xl border border-white/8 bg-white/4 p-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+            <div className="flex-1">
+              <p className="mb-1 text-[10px] uppercase tracking-[0.18em] text-white/30">Ricerca task</p>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Cerca per titolo o note..."
+                className="w-full rounded-xl border border-white/12 bg-white/5 px-3 py-3 text-sm text-white placeholder-white/25 outline-none transition-colors focus:border-blue-500/40"
+              />
+            </div>
+            <div className="lg:w-[320px]">
+              <p className="mb-1 text-[10px] uppercase tracking-[0.18em] text-white/30">Categoria</p>
+              <div className="flex flex-wrap gap-2">
+                {(["All", "Work", "Study", "Admin"] as const).map((option) => {
+                  const active = categoryFilter === option;
+                  return (
+                    <button
+                      key={option}
+                      onClick={() => setCategoryFilter(option)}
+                      className={cn(
+                        "rounded-full border px-3 py-2 text-xs font-semibold transition-colors",
+                        active
+                          ? "border-blue-500/40 bg-blue-500/15 text-blue-300"
+                          : "border-white/10 bg-white/5 text-white/45 hover:bg-white/8 hover:text-white/70"
+                      )}
+                    >
+                      {option === "All" ? "Tutte" : option}
+                    </button>
+                  );
+                })}
               </div>
-            );
-          })}
+            </div>
+          </div>
+        </div>
+
+        {/* Kanban */}
+        <div className="w-full overflow-x-auto">
+          <div className="grid w-full min-w-[920px] grid-cols-4 gap-3">
+            {COLUMNS.map((status) => {
+              const meta = STATUS_META[status];
+              const col = filteredTasks.filter((t) => t.status === status);
+              const Icon = status === "Inbox" ? ClipboardList : status === "InProgress" ? Loader2 : status === "Done" ? CheckCircle : Target;
+              return (
+                <div key={status} className={cn("rounded-xl border p-3", meta.bg, meta.border)}>
+                  <div className="mb-3 flex items-center gap-2">
+                    <Icon size={13} className={meta.color} />
+                    <span className={cn("text-xs font-semibold uppercase tracking-wide", meta.color)}>
+                      {meta.label}
+                    </span>
+                    <span className="ml-auto flex h-4 w-4 items-center justify-center rounded-full bg-white/10 text-[9px] text-white/40">
+                      {col.length}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {col.length === 0 ? (
+                      <p className="py-3 text-center text-[10px] text-white/20">
+                        {filteredTasks.length === 0 ? "Nessun match con i filtri attivi" : "Vuoto"}
+                      </p>
+                    ) : (
+                      col.map((t) => (
+                        <KanbanCard
+                          key={t.id}
+                          task={t}
+                          onAdvance={() => advanceTask(t.id)}
+                          onSelect={() => setActiveTask(activeTask === t.title ? "" : t.title)}
+                          onEdit={() => setSheet({ open: true, ctx: { type: "task", item: t } })}
+                          onDelete={() => deleteTask(t.id)}
+                          isActive={activeTask === t.title}
+                        />
+                      ))
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

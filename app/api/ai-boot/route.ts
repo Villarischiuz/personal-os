@@ -11,17 +11,22 @@ export async function POST(req: NextRequest) {
   if (!apiKey)
     return NextResponse.json({ error: "GEMINI_API_KEY non configurata" }, { status: 500 });
 
-  const { currentTime, nextEvent, topTasks } = await req.json() as {
-    currentTime: string;
-    nextEvent: string | null;
-    topTasks: string[];
-  };
+  const body = await req.json().catch(() => null);
+  const currentTime = typeof body?.currentTime === "string" ? body.currentTime : "";
+  const nextEvent = typeof body?.nextEvent === "string" ? body.nextEvent : null;
+  const topTasks = Array.isArray(body?.topTasks)
+    ? body.topTasks.filter((task: unknown): task is string => typeof task === "string")
+    : [];
+
+  if (!currentTime) {
+    return NextResponse.json({ error: "currentTime mancante" }, { status: 400 });
+  }
 
   const userPrompt = [
     `Current time: ${currentTime}`,
     nextEvent ? `Next scheduled event: ${nextEvent}` : "No upcoming events.",
     topTasks.length
-      ? `Top tasks to do: ${topTasks.map((t, i) => `${i + 1}. ${t}`).join(", ")}`
+      ? `Top tasks to do: ${topTasks.map((t: string, i: number) => `${i + 1}. ${t}`).join(", ")}`
       : "No pending tasks.",
   ].join("\n");
 

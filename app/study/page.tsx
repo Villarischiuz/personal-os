@@ -1,63 +1,250 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { CrudSheet, type CrudContext } from "@/components/global/CrudSheet";
-import { useStudyStore, type CardRating, type RoadmapTask, type Flashcard } from "@/lib/stores/studyStore";
+import { useStudyStore, type CardRating, type RoadmapTopic } from "@/lib/stores/studyStore";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronUp, GraduationCap, MoreHorizontal, Plus } from "@/lib/icons";
+import { ChevronDown, ChevronUp, ExternalLink, GraduationCap, MoreHorizontal, Plus } from "@/lib/icons";
 
 // ─────────────────────────────────────────────────────────────
-// PHASE 3 — Roadmap Tab
+// Roadmap Tab
 // ─────────────────────────────────────────────────────────────
 
 const PHASES = [
   {
     id: "Fase 00",
-    label: "Fase 00 — Ripasso Statistico",
+    label: "Fase 00 — Statistica + SQL",
     color: "border-amber-500/30 bg-amber-500/5",
     accent: "text-amber-400",
-    stop: "Ferma dopo 5 video. Fai esercizi prima di continuare.",
+    bar: "bg-amber-500",
   },
   {
     id: "Fase 01",
-    label: "Fase 01 — Fondamenta (CS50P)",
+    label: "Fase 01 — Math + Python",
     color: "border-blue-500/30 bg-blue-500/5",
     accent: "text-blue-400",
-    stop: "Ferma dopo ogni settimana. Completa il problem set prima del prossimo.",
+    bar: "bg-blue-500",
+  },
+  {
+    id: "Fase 02",
+    label: "Fase 02 — ML Core",
+    color: "border-violet-500/30 bg-violet-500/5",
+    accent: "text-violet-400",
+    bar: "bg-violet-500",
+  },
+  {
+    id: "Fase 03",
+    label: "Fase 03 — Consolidamento",
+    color: "border-green-500/30 bg-green-500/5",
+    accent: "text-green-400",
+    bar: "bg-green-500",
   },
 ];
 
-function RoadmapTab() {
-  const { tasks, toggleTask, deleteRoadmapTask } = useStudyStore();
-  const [open, setOpen] = useState<Record<string, boolean>>({ "Fase 00": true, "Fase 01": true });
-  const [sheet, setSheet] = useState<{ open: boolean; ctx: CrudContext | null }>({ open: false, ctx: null });
+function CheckBox({ checked, onToggle }: { checked: boolean; onToggle: () => void }) {
+  return (
+    <button
+      onClick={onToggle}
+      className={cn(
+        "flex-shrink-0 h-5 w-5 rounded border-2 flex items-center justify-center transition-colors",
+        checked ? "border-green-500 bg-green-500" : "border-white/25 bg-transparent hover:border-white/50"
+      )}
+      role="checkbox"
+      aria-checked={checked}
+    >
+      {checked && (
+        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+          <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
+    </button>
+  );
+}
 
-  const done = tasks.filter((t) => t.done).length;
+function TopicRow({ topic, onDelete }: { topic: RoadmapTopic; onDelete: () => void }) {
+  const { toggleTopicDone, toggleItemDone } = useStudyStore();
+  const [expanded, setExpanded] = useState(false);
+
+  const isVideoList = topic.type === "video_list" && topic.items && topic.items.length > 0;
+  const itemsTotal = topic.items?.length ?? 0;
+  const itemsDoneCount = topic.itemsDone.length;
+  const allItemsDone = isVideoList && itemsDoneCount === itemsTotal;
 
   return (
-    <div className="space-y-4">
-      {/* Progress summary */}
-      <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/3 px-4 py-3">
-        <GraduationCap size={18} className="text-violet-400 flex-shrink-0" />
-        <div className="flex-1">
-          <p className="text-xs text-white/40">Completamento roadmap</p>
-          <p className="text-lg font-black text-white">{done}<span className="text-sm text-white/30">/{tasks.length}</span></p>
+    <div className="rounded-lg border border-white/8 bg-white/2 overflow-hidden">
+      {/* Main row */}
+      <div className="group flex items-center gap-2.5 px-3 py-2.5 min-h-[48px]">
+        <CheckBox
+          checked={!!(isVideoList ? allItemsDone : topic.done)}
+          onToggle={() => toggleTopicDone(topic.id)}
+        />
+        <div className="flex-1 min-w-0">
+          <p className={cn(
+            "text-sm font-semibold leading-snug",
+            (isVideoList ? allItemsDone : topic.done) ? "line-through text-white/30" : "text-white/85"
+          )}>
+            {topic.title}
+          </p>
+          {topic.desc && (
+            <p className="text-[10px] text-white/35 mt-0.5 leading-relaxed">{topic.desc}</p>
+          )}
+          {isVideoList && (
+            <p className="text-[10px] text-white/30 mt-0.5">{itemsDoneCount}/{itemsTotal} video</p>
+          )}
         </div>
-        <div className="h-2 w-24 rounded-full bg-white/10 overflow-hidden">
-          <div
-            className="h-full rounded-full bg-violet-500 transition-all"
-            style={{ width: `${(done / tasks.length) * 100}%` }}
-          />
+
+        {/* Actions */}
+        <div className="flex items-center gap-1 flex-shrink-0">
+          {topic.url && !isVideoList && (
+            <a
+              href={topic.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded p-1.5 text-white/20 hover:text-white/60 hover:bg-white/10 transition-colors"
+            >
+              <ExternalLink size={12} />
+            </a>
+          )}
+          {isVideoList && (
+            <button
+              onClick={() => setExpanded((e) => !e)}
+              className="rounded p-1.5 text-white/20 hover:text-white/60 hover:bg-white/10 transition-colors"
+            >
+              {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            </button>
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="rounded p-1.5 text-white/20 hover:bg-white/10 hover:text-white/60 transition-colors opacity-0 group-hover:opacity-100 min-h-[32px] min-w-[32px] flex items-center justify-center">
+                <MoreHorizontal size={13} />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={onDelete} className="text-red-400 focus:text-red-400">🗑 Elimina</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
+      {/* Video list expanded */}
+      {isVideoList && expanded && (
+        <div className="border-t border-white/6 px-3 pb-2 pt-1 space-y-1">
+          {topic.items!.map((item) => {
+            const done = topic.itemsDone.includes(item.title);
+            return (
+              <div key={item.title} className="flex items-center gap-2.5 py-1.5">
+                <CheckBox
+                  checked={done}
+                  onToggle={() => toggleItemDone(topic.id, item.title)}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className={cn("text-xs leading-snug", done ? "line-through text-white/25" : "text-white/70")}>
+                    {item.title}
+                  </p>
+                  {item.dur && <span className="text-[10px] text-white/25">{item.dur}</span>}
+                </div>
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-shrink-0 rounded p-1 text-white/20 hover:text-white/60 transition-colors"
+                >
+                  <ExternalLink size={11} />
+                </a>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RoadmapTab() {
+  const { topics, deleteTopic } = useStudyStore();
+  const [open, setOpen] = useState<Record<string, boolean>>({ "Fase 00": true });
+  const [search, setSearch] = useState("");
+  const [hideCompleted, setHideCompleted] = useState(false);
+  const normalizedSearch = search.trim().toLowerCase();
+
+  function matchesTopic(topic: RoadmapTopic) {
+    const isCompleted =
+      topic.type === "video_list" && topic.items
+        ? topic.itemsDone.length === topic.items.length
+        : topic.done;
+
+    if (hideCompleted && isCompleted) return false;
+
+    const haystack = [topic.title, topic.desc, topic.source]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return !normalizedSearch || haystack.includes(normalizedSearch);
+  }
+
+  // Overall progress: count completed topics/items
+  const totalItems = topics.reduce((acc, t) => acc + (t.type === "video_list" && t.items ? t.items.length : 1), 0);
+  const doneItems = topics.reduce((acc, t) => {
+    if (t.type === "video_list" && t.items) return acc + t.itemsDone.length;
+    return acc + (t.done ? 1 : 0);
+  }, 0);
+  const pct = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
+
+  return (
+    <div className="space-y-4">
+      {/* Overall progress */}
+      <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/3 px-4 py-3">
+        <GraduationCap size={18} className="text-violet-400 flex-shrink-0" />
+        <div className="flex-1">
+          <p className="text-xs text-white/40">Completamento roadmap DSE/Polito</p>
+          <p className="text-lg font-black text-white">
+            {doneItems}<span className="text-sm text-white/30">/{totalItems} risorse</span>
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-xs font-bold text-violet-400">{pct}%</p>
+          <div className="mt-1 h-1.5 w-20 rounded-full bg-white/10 overflow-hidden">
+            <div className="h-full rounded-full bg-violet-500 transition-all" style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-white/8 bg-white/3 p-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Cerca risorse, descrizioni o fonti..."
+            className="flex-1 rounded-xl border border-white/12 bg-white/5 px-3 py-3 text-sm text-white placeholder-white/25 outline-none transition-colors focus:border-violet-500/40"
+          />
+          <button
+            onClick={() => setHideCompleted((value) => !value)}
+            className={cn(
+              "rounded-xl border px-3 py-3 text-xs font-semibold transition-colors",
+              hideCompleted
+                ? "border-violet-500/40 bg-violet-500/15 text-violet-300"
+                : "border-white/12 bg-white/5 text-white/45 hover:bg-white/8 hover:text-white/70"
+            )}
+          >
+            {hideCompleted ? "Mostra completate" : "Nascondi completate"}
+          </button>
+        </div>
+      </div>
+
+      {/* Phases */}
       {PHASES.map((phase) => {
-        const phaseTasks = tasks.filter((t) => t.phase === phase.id);
-        const pDone = phaseTasks.filter((t) => t.done).length;
-        const isOpen = open[phase.id] ?? true;
+        const phaseTopics = topics.filter((t) => t.phase === phase.id && matchesTopic(t));
+        const phaseTotal = phaseTopics.reduce((acc, t) => acc + (t.type === "video_list" && t.items ? t.items.length : 1), 0);
+        const phaseDone = phaseTopics.reduce((acc, t) => {
+          if (t.type === "video_list" && t.items) return acc + t.itemsDone.length;
+          return acc + (t.done ? 1 : 0);
+        }, 0);
+        const isOpen = open[phase.id] ?? false;
+        const phasePct = phaseTotal > 0 ? Math.round((phaseDone / phaseTotal) * 100) : 0;
 
         return (
           <div key={phase.id} className={cn("rounded-xl border overflow-hidden", phase.color)}>
@@ -66,8 +253,15 @@ function RoadmapTab() {
               onClick={() => setOpen((o) => ({ ...o, [phase.id]: !isOpen }))}
               className="flex w-full items-center gap-3 px-4 py-3.5 text-left"
             >
-              <span className={cn("text-sm font-bold flex-1", phase.accent)}>{phase.label}</span>
-              <span className="text-xs text-white/30">{pDone}/{phaseTasks.length}</span>
+              <div className="flex-1">
+                <span className={cn("text-sm font-bold", phase.accent)}>{phase.label}</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="h-1 w-20 rounded-full bg-white/10 overflow-hidden">
+                    <div className={cn("h-full rounded-full transition-all", phase.bar)} style={{ width: `${phasePct}%` }} />
+                  </div>
+                  <span className="text-[10px] text-white/30">{phaseDone}/{phaseTotal}</span>
+                </div>
+              </div>
               {isOpen ? (
                 <ChevronUp size={14} className="text-white/30 flex-shrink-0" />
               ) : (
@@ -76,75 +270,28 @@ function RoadmapTab() {
             </button>
 
             {isOpen && (
-              <div className="border-t border-white/8 px-4 pb-3">
-                {/* Stop Rule */}
-                <div className="mt-3 mb-3 flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5">
-                  <span className="text-sm flex-shrink-0">🛑</span>
-                  <p className="text-xs text-amber-300 leading-relaxed">{phase.stop}</p>
-                </div>
-
-                {/* Tasks */}
-                <div className="space-y-1.5">
-                  {phaseTasks.map((task) => (
-                    <RoadmapRow
-                      key={task.id}
-                      task={task}
-                      onToggle={() => toggleTask(task.id)}
-                      onEdit={() => setSheet({ open: true, ctx: { type: "roadmap", item: task } })}
-                      onDelete={() => deleteRoadmapTask(task.id)}
-                    />
-                  ))}
-                </div>
-                {/* Add to this phase */}
-                <button
-                  onClick={() => setSheet({ open: true, ctx: { type: "roadmap", item: { id: "", phase: phase.id, title: "", done: false } } })}
-                  className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-white/15 py-2.5 text-xs text-white/25 hover:border-white/30 hover:text-white/50 transition-colors min-h-[44px]"
-                >
-                  <Plus size={11} /> Aggiungi risorsa
-                </button>
+              <div className="border-t border-white/8 px-3 pb-3 pt-2 space-y-2">
+                {phaseTopics.length === 0 && (
+                  <p className="text-xs text-white/25 text-center py-4">Nessuna risorsa in questa fase.</p>
+                )}
+                {phaseTopics.map((topic) => (
+                  <TopicRow
+                    key={topic.id}
+                    topic={topic}
+                    onDelete={() => deleteTopic(topic.id)}
+                  />
+                ))}
               </div>
             )}
           </div>
         );
       })}
-      <CrudSheet open={sheet.open} context={sheet.ctx} onClose={() => setSheet({ open: false, ctx: null })} />
-    </div>
-  );
-}
 
-function RoadmapRow({ task, onToggle, onEdit, onDelete }: { task: RoadmapTask; onToggle: () => void; onEdit: () => void; onDelete: () => void }) {
-  return (
-    <div className="group flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-white/5 transition-colors min-h-[44px]">
-      <button
-        onClick={onToggle}
-        className={cn(
-          "flex-shrink-0 h-5 w-5 rounded border-2 flex items-center justify-center transition-colors",
-          task.done ? "border-green-500 bg-green-500" : "border-white/25 bg-transparent hover:border-white/50"
-        )}
-        aria-checked={task.done}
-        role="checkbox"
-      >
-        {task.done && (
-          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-            <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        )}
-      </button>
-      <span className={cn("text-sm leading-snug flex-1", task.done ? "line-through text-white/30" : "text-white/80")}>
-        {task.title}
-      </span>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button className="flex-shrink-0 rounded p-1.5 text-white/20 hover:bg-white/10 hover:text-white/60 transition-colors opacity-0 group-hover:opacity-100 min-h-[32px] min-w-[32px] flex items-center justify-center">
-            <MoreHorizontal size={13} />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={onEdit}>✏️ Modifica</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={onDelete} className="text-red-400 focus:text-red-400">🗑 Elimina</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {PHASES.every((phase) => topics.filter((topic) => topic.phase === phase.id && matchesTopic(topic)).length === 0) && (
+        <div className="rounded-xl border border-white/8 bg-white/3 py-10 text-center">
+          <p className="text-sm text-white/35">Nessuna risorsa trovata con i filtri correnti.</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -164,19 +311,31 @@ function FlashcardsTab() {
   const [flipped, setFlipped] = useState(false);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [sheet, setSheet] = useState<{ open: boolean; ctx: CrudContext | null }>({ open: false, ctx: null });
+  const [tagFilter, setTagFilter] = useState("all");
+  const [search, setSearch] = useState("");
 
   const due = getDueCards();
+  const tags = Array.from(new Set(cards.map((card) => card.tag))).sort((a, b) => a.localeCompare(b));
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredDue = due.filter((card) => tagFilter === "all" || card.tag === tagFilter);
+  const visibleCards = cards.filter((card) => {
+    const matchesTag = tagFilter === "all" || card.tag === tagFilter;
+    const haystack = `${card.q} ${card.a} ${card.tag}`.toLowerCase();
+    return matchesTag && (!normalizedSearch || haystack.includes(normalizedSearch));
+  });
   const newCount = cards.filter((c) => c.rating === null).length;
 
   function handleRate(rating: CardRating) {
-    if (!due[currentIdx]) return;
-    rateCard(due[currentIdx].id, rating);
+    const safeIndex = currentIdx < filteredDue.length ? currentIdx : 0;
+    if (!filteredDue[safeIndex]) return;
+    rateCard(filteredDue[safeIndex].id, rating);
     setFlipped(false);
     // Move to next with a tiny delay so the un-flip animation plays
-    setTimeout(() => setCurrentIdx((i) => (i < due.length - 1 ? i + 1 : 0)), 120);
+    setTimeout(() => setCurrentIdx((i) => (i < filteredDue.length - 1 ? i + 1 : 0)), 120);
   }
 
-  const card = due[currentIdx] ?? null;
+  const safeCurrentIdx = currentIdx < filteredDue.length ? currentIdx : 0;
+  const card = filteredDue[safeCurrentIdx] ?? null;
 
   return (
     <div className="space-y-5">
@@ -200,6 +359,44 @@ function FlashcardsTab() {
         >
           <Plus size={13} />
         </button>
+      </div>
+
+      <div className="rounded-xl border border-white/8 bg-white/3 p-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Cerca domanda, risposta o tag..."
+            className="flex-1 rounded-xl border border-white/12 bg-white/5 px-3 py-3 text-sm text-white placeholder-white/25 outline-none transition-colors focus:border-violet-500/40"
+          />
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setTagFilter("all")}
+              className={cn(
+                "rounded-full border px-3 py-2 text-xs font-semibold transition-colors",
+                tagFilter === "all"
+                  ? "border-violet-500/40 bg-violet-500/15 text-violet-300"
+                  : "border-white/10 bg-white/5 text-white/45 hover:bg-white/8 hover:text-white/70"
+              )}
+            >
+              Tutti
+            </button>
+            {tags.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => setTagFilter(tag)}
+                className={cn(
+                  "rounded-full border px-3 py-2 text-xs font-semibold transition-colors",
+                  tagFilter === tag
+                    ? "border-violet-500/40 bg-violet-500/15 text-violet-300"
+                    : "border-white/10 bg-white/5 text-white/45 hover:bg-white/8 hover:text-white/70"
+                )}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {card ? (
@@ -270,8 +467,10 @@ function FlashcardsTab() {
       {/* All cards list with edit/delete */}
       {cards.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold text-white/30 uppercase tracking-wider">Tutte le flashcard ({cards.length})</p>
-          {cards.map((c) => (
+          <p className="text-xs font-semibold text-white/30 uppercase tracking-wider">
+            Tutte le flashcard ({visibleCards.length}/{cards.length})
+          </p>
+          {visibleCards.map((c) => (
             <div key={c.id} className="group flex items-center gap-3 rounded-xl border border-white/8 bg-white/3 px-3 py-2.5">
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-semibold text-white/80 truncate">{c.q}</p>
@@ -291,6 +490,11 @@ function FlashcardsTab() {
               </DropdownMenu>
             </div>
           ))}
+          {visibleCards.length === 0 && (
+            <div className="rounded-xl border border-white/8 bg-white/3 py-6 text-center text-sm text-white/35">
+              Nessuna flashcard trovata con i filtri attivi.
+            </div>
+          )}
         </div>
       )}
 
@@ -307,14 +511,41 @@ const DOG_WALK_ITEMS = [
   { id: "dw-1", label: "BBC 6 Minute English", sub: "bbc.co.uk/learningenglish", emoji: "🎙" },
   { id: "dw-2", label: "DataFramed Podcast", sub: "DataCamp · episodio in coda", emoji: "📊" },
 ];
+const DOG_WALK_KEY = "study-dog-walk";
 
 function EnglishTab() {
-  const [dogWalkChecked, setDogWalkChecked] = useState<Record<string, boolean>>({});
-  const ieltsTarget = new Date("2025-09-01");
-  const daysLeft = Math.max(0, Math.ceil((ieltsTarget.getTime() - Date.now()) / 86400000));
-  const totalDays = Math.ceil((ieltsTarget.getTime() - new Date("2025-04-11").getTime()) / 86400000);
+  const [dogWalkChecked, setDogWalkChecked] = useState<Record<string, boolean>>(() => {
+    if (typeof window === "undefined") return {};
+    try {
+      return JSON.parse(localStorage.getItem(DOG_WALK_KEY) || "{}") as Record<string, boolean>;
+    } catch {
+      return {};
+    }
+  });
+  const [today] = useState(() => new Date());
+  const currentYear = today.getFullYear();
+  const candidateTarget = new Date(currentYear, 8, 1);
+  const ieltsTarget =
+    candidateTarget.getTime() > today.getTime()
+      ? candidateTarget
+      : new Date(currentYear + 1, 8, 1);
+  const prepStart = new Date(ieltsTarget);
+  prepStart.setDate(prepStart.getDate() - 180);
+  const daysLeft = Math.max(
+    0,
+    Math.ceil((ieltsTarget.getTime() - today.getTime()) / 86400000)
+  );
+  const totalDays = Math.max(
+    1,
+    Math.ceil((ieltsTarget.getTime() - prepStart.getTime()) / 86400000)
+  );
   const elapsed = totalDays - daysLeft;
   const pct = Math.min(100, Math.round((elapsed / totalDays) * 100));
+  const completedDogWalk = DOG_WALK_ITEMS.filter((item) => dogWalkChecked[item.id]).length;
+
+  useEffect(() => {
+    localStorage.setItem(DOG_WALK_KEY, JSON.stringify(dogWalkChecked));
+  }, [dogWalkChecked]);
 
   return (
     <div className="space-y-4">
@@ -359,7 +590,9 @@ function EnglishTab() {
       <Card>
         <CardHeader>
           <CardTitle>🐕 Audio da passeggio</CardTitle>
-          <span className="text-xs text-white/30">Habit stack con la passeggiata mattutina</span>
+          <span className="text-xs text-white/30">
+            Habit stack con la passeggiata mattutina · {completedDogWalk}/{DOG_WALK_ITEMS.length} completati
+          </span>
         </CardHeader>
         <CardContent className="space-y-2">
           {DOG_WALK_ITEMS.map((item) => (

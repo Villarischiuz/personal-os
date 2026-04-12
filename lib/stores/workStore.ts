@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { MOCK_TASKS } from "@/lib/mock-data";
 import type { Task } from "@/lib/types";
+import { today } from "@/lib/utils";
 
 // ─── Kanban store ─────────────────────────────────────────────
 const CYCLE: Task["status"][] = ["Todo", "InProgress", "Done", "Inbox"];
@@ -19,11 +20,10 @@ interface KanbanStore {
 
 let _id = 200;
 function newId() { return `t-z${++_id}`; }
-function today() { return new Date().toISOString().split("T")[0]; }
 
 export const useKanbanStore = create<KanbanStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       tasks: MOCK_TASKS,
       _hydrated: false,
 

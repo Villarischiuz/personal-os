@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, X, ChevronRight, RefreshCw, Star, Zap } from "@/lib/icons";
+import { Plus, ChevronRight, RefreshCw, Star, Zap } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 import type { WeeklyEvent, EventColor } from "@/lib/types";
 
 // ─── Constants ────────────────────────────────────────────────
 const DAYS = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
-const HOURS = Array.from({ length: 17 }, (_, i) => i + 6); // 6–22
-const SLOT_H = 40; // px per hour in mini-grid
 
 const COLOR_MAP: Record<EventColor, { bg: string; text: string; dot: string }> = {
   blue:   { bg: "bg-blue-500/20",   text: "text-blue-300",   dot: "bg-blue-400"   },

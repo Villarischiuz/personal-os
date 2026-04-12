@@ -2,34 +2,15 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useKanbanStore } from "@/lib/stores/workStore";
+import { today } from "@/lib/utils";
 
-const CACHE_KEY = "ai_boot_cache";
 const CACHE_TTL_MS = 120 * 60 * 1000; // 120 minutes
+const CACHE_KEY_PREFIX = "ai_boot_cache";
 
 interface Cache {
+  signature: string;
   text: string;
   timestamp: number;
-}
-
-function useNextEvent(): string | null {
-  // Read from localStorage weekly events for today
-  try {
-    const raw = localStorage.getItem("personal-os-weekly");
-    if (!raw) return null;
-    const events: Array<{ title: string; dayOfWeek: number; hour: number; minute: number }> =
-      JSON.parse(raw);
-    const now = new Date();
-    const todayDow = (now.getDay() + 6) % 7;
-    const nowMins = now.getHours() * 60 + now.getMinutes();
-    const upcoming = events
-      .filter((e) => e.dayOfWeek === todayDow && e.hour * 60 + e.minute > nowMins)
-      .sort((a, b) => a.hour * 60 + a.minute - (b.hour * 60 + b.minute));
-    if (!upcoming.length) return null;
-    const e = upcoming[0];
-    return `${e.title} at ${String(e.hour).padStart(2, "0")}:${String(e.minute).padStart(2, "0")}`;
-  } catch {
-    return null;
-  }
 }
 
 export function AIBootBanner() {
@@ -37,7 +18,7 @@ export function AIBootBanner() {
   const [typed, setTyped] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const tasks = useKanbanStore((s) => s.tasks);
-  const didFetch = useRef(false);
+  const lastSignatureRef = useRef<string | null>(null);
 
   // Typewriter effect
   useEffect(() => {
@@ -53,15 +34,32 @@ export function AIBootBanner() {
   }, [display]);
 
   useEffect(() => {
-    if (didFetch.current) return;
-    didFetch.current = true;
+    const now = new Date();
+    const currentTime = now.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+    const nextEvent = getNextEventSnapshot();
+    const topTasks = tasks
+      .filter((t) => t.status === "Todo")
+      .slice(0, 2)
+      .map((t) => t.title);
+    const signature = JSON.stringify({
+      day: today(),
+      nextEvent,
+      topTasks,
+    });
 
-    // Check cache
+    if (lastSignatureRef.current === signature) return;
+    lastSignatureRef.current = signature;
+
+    const cacheKey = `${CACHE_KEY_PREFIX}:${today()}`;
+
     try {
-      const raw = localStorage.getItem(CACHE_KEY);
+      const raw = localStorage.getItem(cacheKey);
       if (raw) {
         const cache: Cache = JSON.parse(raw);
-        if (Date.now() - cache.timestamp < CACHE_TTL_MS) {
+        if (
+          cache.signature === signature &&
+          Date.now() - cache.timestamp < CACHE_TTL_MS
+        ) {
           setDisplay(cache.text);
           return;
         }
@@ -69,15 +67,6 @@ export function AIBootBanner() {
     } catch {
       /* ignore corrupt cache */
     }
-
-    // Build payload
-    const now = new Date();
-    const currentTime = now.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
-    const nextEvent = useNextEventSnapshot();
-    const topTasks = tasks
-      .filter((t) => t.status === "Todo")
-      .slice(0, 2)
-      .map((t) => t.title);
 
     setLoading(true);
     fetch("/api/ai-boot", {
@@ -89,13 +78,19 @@ export function AIBootBanner() {
       .then((data: { text?: string; error?: string }) => {
         if (data.text) {
           setDisplay(data.text);
-          localStorage.setItem(CACHE_KEY, JSON.stringify({ text: data.text, timestamp: Date.now() }));
+          localStorage.setItem(
+            cacheKey,
+            JSON.stringify({
+              signature,
+              text: data.text,
+              timestamp: Date.now(),
+            } satisfies Cache)
+          );
         }
       })
       .catch(() => {/* silent fail */})
       .finally(() => setLoading(false));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [tasks]);
 
   if (!display && !loading) return null;
 
@@ -124,8 +119,7 @@ export function AIBootBanner() {
   );
 }
 
-// Called inside useEffect (not a hook itself) — reads localStorage snapshot
-function useNextEventSnapshot(): string | null {
+function getNextEventSnapshot(): string | null {
   try {
     const raw = localStorage.getItem("personal-os-weekly");
     if (!raw) return null;

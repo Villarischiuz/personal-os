@@ -9,29 +9,39 @@ export function QuickCaptureOverlay() {
   const inputRef = useRef<HTMLInputElement>(null);
   const addTask = useKanbanStore((s) => s.addTask);
 
+  function closeOverlay() {
+    setValue("");
+    setOpen(false);
+  }
+
   useEffect(() => {
     function handler(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
-        setOpen((o) => !o);
+        setOpen((wasOpen) => {
+          if (wasOpen) {
+            setValue("");
+          }
+          return !wasOpen;
+        });
       }
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") closeOverlay();
     }
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
   useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 50);
-    else setValue("");
+    if (!open) return;
+    const timeoutId = window.setTimeout(() => inputRef.current?.focus(), 50);
+    return () => window.clearTimeout(timeoutId);
   }, [open]);
 
   function save() {
     const t = value.trim();
     if (!t) return;
     addTask(t);
-    setValue("");
-    setOpen(false);
+    closeOverlay();
   }
 
   return (
@@ -49,7 +59,7 @@ export function QuickCaptureOverlay() {
       {open && (
         <div
           className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 backdrop-blur-sm pt-24 px-4"
-          onClick={(e) => e.target === e.currentTarget && setOpen(false)}
+          onClick={(e) => e.target === e.currentTarget && closeOverlay()}
         >
           <div className="w-full max-w-lg rounded-2xl border border-white/15 bg-[hsl(222,47%,8%)] shadow-2xl overflow-hidden">
             <div className="flex items-center gap-3 px-4 py-4 border-b border-white/8">
@@ -62,7 +72,7 @@ export function QuickCaptureOverlay() {
                 placeholder="Cattura un'attività… (Invio per salvare)"
                 className="flex-1 bg-transparent text-base text-white placeholder-white/25 outline-none"
               />
-              <button onClick={() => setOpen(false)} className="text-white/30 hover:text-white/60 p-1">
+              <button onClick={closeOverlay} className="text-white/30 hover:text-white/60 p-1">
                 <X size={18} />
               </button>
             </div>

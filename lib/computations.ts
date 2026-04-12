@@ -13,6 +13,7 @@ import type {
   InventoryItem,
   Task,
 } from "./types";
+import { parseLocalDate } from "./utils";
 
 // ─── SYSTEM TRAFFIC LIGHT ─────────────────────────────────────
 const SLEEP_THRESHOLD = 7;
@@ -79,7 +80,7 @@ function formatChartDate(isoDate: string): string {
     "Jan","Feb","Mar","Apr","May","Jun",
     "Jul","Aug","Sep","Oct","Nov","Dec",
   ];
-  const d = new Date(isoDate);
+  const d = parseLocalDate(isoDate);
   return `${months[d.getMonth()]} ${parseInt(day)}`;
 }
 

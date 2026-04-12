@@ -6,7 +6,8 @@ export async function POST(req: NextRequest) {
   if (!apiKey)
     return NextResponse.json({ error: "GEMINI_API_KEY non configurata" }, { status: 500 });
 
-  const { prompt } = await req.json();
+  const body = await req.json().catch(() => null);
+  const prompt = typeof body?.prompt === "string" ? body.prompt : "";
   if (!prompt?.trim())
     return NextResponse.json({ error: "Prompt vuoto" }, { status: 400 });
 

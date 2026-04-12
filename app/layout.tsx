@@ -29,12 +29,14 @@ export default function RootLayout({
   return (
     <html
       lang="it"
-      className={`${geistSans.variable} ${geistMono.variable} h-full`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full overflow-x-hidden`}
     >
-      <body className="min-h-full bg-[hsl(222,47%,6%)] text-white antialiased">
+      <body className="min-h-full overflow-x-hidden bg-[hsl(222,47%,6%)] text-white antialiased md:pl-56">
         <Sidebar />
         {/* Main content — offset for sidebar on desktop */}
-        <main className="md:ml-56 min-h-screen px-4 py-6 md:px-10 md:py-10 pb-[220px] md:pb-10">{children}</main>
+        <main className="min-h-screen min-w-0 max-w-full px-4 py-6 pb-[220px] md:px-10 md:py-10 md:pb-10">
+          {children}
+        </main>
         <QuickCaptureOverlay />
         <BurnoutBanner />
         <AICopilot />

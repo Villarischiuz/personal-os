@@ -4,7 +4,7 @@ import { useState } from "react";
 import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   eachDayOfInterval, isSameMonth, isToday as dfIsToday,
-  addMonths, subMonths, addWeeks, subWeeks, isSameDay, parseISO,
+  addMonths, subMonths, addWeeks, subWeeks,
 } from "date-fns";
 import { it } from "date-fns/locale";
 import { useKanbanStore } from "@/lib/stores/workStore";
@@ -85,73 +85,75 @@ function MonthView({
   const capitalTitle = title.charAt(0).toUpperCase() + title.slice(1);
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/3 overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/8">
-        <button onClick={() => onNavigate(subMonths(current, 1))} className="rounded-lg p-2 text-white/30 hover:bg-white/8 hover:text-white/70 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center">
-          <ChevronLeft size={16} />
-        </button>
-        <h3 className="text-sm font-semibold text-white">{capitalTitle}</h3>
-        <button onClick={() => onNavigate(addMonths(current, 1))} className="rounded-lg p-2 text-white/30 hover:bg-white/8 hover:text-white/70 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center">
-          <ChevronRight size={16} />
-        </button>
-      </div>
+    <div className="w-full overflow-x-auto">
+      <div className="min-w-[760px] rounded-xl border border-white/10 bg-white/3 overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/8">
+          <button onClick={() => onNavigate(subMonths(current, 1))} className="rounded-lg p-2 text-white/30 hover:bg-white/8 hover:text-white/70 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center">
+            <ChevronLeft size={16} />
+          </button>
+          <h3 className="text-sm font-semibold text-white">{capitalTitle}</h3>
+          <button onClick={() => onNavigate(addMonths(current, 1))} className="rounded-lg p-2 text-white/30 hover:bg-white/8 hover:text-white/70 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center">
+            <ChevronRight size={16} />
+          </button>
+        </div>
 
-      {/* Day labels */}
-      <div className="grid grid-cols-7 border-b border-white/5">
-        {WEEK_COLS.map((d) => (
-          <div key={d} className="py-2 text-center text-[10px] font-semibold text-white/25 uppercase tracking-wider">
-            {d}
-          </div>
-        ))}
-      </div>
+        {/* Day labels */}
+        <div className="grid grid-cols-7 border-b border-white/5">
+          {WEEK_COLS.map((d) => (
+            <div key={d} className="py-2 text-center text-[10px] font-semibold text-white/25 uppercase tracking-wider">
+              {d}
+            </div>
+          ))}
+        </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-7">
-        {days.map((day) => {
-          const iso = isoStr(day);
-          const dayTasks = tasks.filter((t) => t.date === iso);
-          const inMonth = isSameMonth(day, current);
-          const isToday = dfIsToday(day);
-          const dots = dayTasks.slice(0, 4);
+        {/* Grid */}
+        <div className="grid grid-cols-7">
+          {days.map((day) => {
+            const iso = isoStr(day);
+            const dayTasks = tasks.filter((t) => t.date === iso);
+            const inMonth = isSameMonth(day, current);
+            const isToday = dfIsToday(day);
+            const dots = dayTasks.slice(0, 4);
 
-          return (
-            <button
-              key={iso}
-              onClick={() => inMonth ? onDayClick(day) : onAddClick(iso)}
-              className={cn(
-                "group relative min-h-[60px] p-1.5 border-b border-r border-white/5 text-left transition-colors last:border-r-0",
-                inMonth ? "hover:bg-white/5 active:bg-white/8" : "opacity-30",
-              )}
-            >
-              <span className={cn(
-                "inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold",
-                isToday
-                  ? "bg-blue-600 text-white"
-                  : "text-white/70"
-              )}>
-                {format(day, "d")}
-              </span>
+            return (
+              <button
+                key={iso}
+                onClick={() => inMonth ? onDayClick(day) : onAddClick(iso)}
+                className={cn(
+                  "group relative min-h-[60px] p-1.5 border-b border-r border-white/5 text-left transition-colors last:border-r-0",
+                  inMonth ? "hover:bg-white/5 active:bg-white/8" : "opacity-30",
+                )}
+              >
+                <span className={cn(
+                  "inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold",
+                  isToday
+                    ? "bg-blue-600 text-white"
+                    : "text-white/70"
+                )}>
+                  {format(day, "d")}
+                </span>
 
-              {/* Task dots */}
-              {dots.length > 0 && (
-                <div className="mt-1 flex flex-wrap gap-[3px] px-0.5">
-                  {dots.map((t) => (
-                    <span key={t.id} className={cn("h-1.5 w-1.5 rounded-full flex-shrink-0", STATUS_DOT[t.status])} />
-                  ))}
-                  {dayTasks.length > 4 && (
-                    <span className="text-[8px] text-white/30 leading-none self-center">+{dayTasks.length - 4}</span>
-                  )}
-                </div>
-              )}
+                {/* Task dots */}
+                {dots.length > 0 && (
+                  <div className="mt-1 flex flex-wrap gap-[3px] px-0.5">
+                    {dots.map((t) => (
+                      <span key={t.id} className={cn("h-1.5 w-1.5 rounded-full flex-shrink-0", STATUS_DOT[t.status])} />
+                    ))}
+                    {dayTasks.length > 4 && (
+                      <span className="text-[8px] text-white/30 leading-none self-center">+{dayTasks.length - 4}</span>
+                    )}
+                  </div>
+                )}
 
-              {/* Add hint on hover */}
-              {inMonth && (
-                <Plus size={10} className="absolute bottom-1.5 right-1.5 text-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-              )}
-            </button>
-          );
-        })}
+                {/* Add hint on hover */}
+                {inMonth && (
+                  <Plus size={10} className="absolute bottom-1.5 right-1.5 text-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -181,55 +183,57 @@ function WeekView({
     format(weekStart, "d MMM", { locale: it }) + " – " + format(weekEnd, "d MMM yyyy", { locale: it });
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/3 overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/8">
-        <button onClick={() => onNavigate(subWeeks(current, 1))} className="rounded-lg p-2 text-white/30 hover:bg-white/8 hover:text-white/70 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center">
-          <ChevronLeft size={16} />
-        </button>
-        <h3 className="text-xs font-semibold text-white/70 capitalize">{rangeLabel}</h3>
-        <button onClick={() => onNavigate(addWeeks(current, 1))} className="rounded-lg p-2 text-white/30 hover:bg-white/8 hover:text-white/70 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center">
-          <ChevronRight size={16} />
-        </button>
-      </div>
+    <div className="w-full overflow-x-auto">
+      <div className="min-w-[920px] rounded-xl border border-white/10 bg-white/3 overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/8">
+          <button onClick={() => onNavigate(subWeeks(current, 1))} className="rounded-lg p-2 text-white/30 hover:bg-white/8 hover:text-white/70 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center">
+            <ChevronLeft size={16} />
+          </button>
+          <h3 className="text-xs font-semibold text-white/70 capitalize">{rangeLabel}</h3>
+          <button onClick={() => onNavigate(addWeeks(current, 1))} className="rounded-lg p-2 text-white/30 hover:bg-white/8 hover:text-white/70 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center">
+            <ChevronRight size={16} />
+          </button>
+        </div>
 
-      {/* Columns */}
-      <div className="grid grid-cols-7 divide-x divide-white/5 min-h-[220px]">
-        {days.map((day) => {
-          const iso = isoStr(day);
-          const dayTasks = tasks.filter((t) => t.date === iso);
-          const isToday = dfIsToday(day);
+        {/* Columns */}
+        <div className="grid grid-cols-7 divide-x divide-white/5 min-h-[220px]">
+          {days.map((day) => {
+            const iso = isoStr(day);
+            const dayTasks = tasks.filter((t) => t.date === iso);
+            const isToday = dfIsToday(day);
 
-          return (
-            <div key={iso} className="flex flex-col min-h-[200px]">
-              {/* Col header */}
-              <div className={cn(
-                "border-b border-white/5 px-1.5 py-2 text-center sticky top-0",
-                isToday && "bg-blue-600/10"
-              )}>
-                <p className="text-[9px] font-semibold text-white/30 uppercase">{WEEK_COLS[(day.getDay() + 6) % 7]}</p>
-                <p className={cn("text-sm font-bold", isToday ? "text-blue-400" : "text-white/70")}>
-                  {format(day, "d")}
-                </p>
+            return (
+              <div key={iso} className="flex flex-col min-h-[200px]">
+                {/* Col header */}
+                <div className={cn(
+                  "border-b border-white/5 px-1.5 py-2 text-center sticky top-0",
+                  isToday && "bg-blue-600/10"
+                )}>
+                  <p className="text-[9px] font-semibold text-white/30 uppercase">{WEEK_COLS[(day.getDay() + 6) % 7]}</p>
+                  <p className={cn("text-sm font-bold", isToday ? "text-blue-400" : "text-white/70")}>
+                    {format(day, "d")}
+                  </p>
+                </div>
+
+                {/* Task cards */}
+                <div className="flex-1 p-1 space-y-1">
+                  {dayTasks.map((t) => (
+                    <WeekTaskCard key={t.id} task={t} onEdit={() => onTaskEdit(t)} onDelete={() => onTaskDelete(t.id)} />
+                  ))}
+                </div>
+
+                {/* Add empty column click */}
+                <button
+                  onClick={() => onAddClick(iso)}
+                  className="flex w-full items-center justify-center gap-1 py-2 text-white/15 hover:text-white/40 hover:bg-white/4 transition-colors min-h-[36px]"
+                >
+                  <Plus size={12} />
+                </button>
               </div>
-
-              {/* Task cards */}
-              <div className="flex-1 p-1 space-y-1">
-                {dayTasks.map((t) => (
-                  <WeekTaskCard key={t.id} task={t} onEdit={() => onTaskEdit(t)} onDelete={() => onTaskDelete(t.id)} />
-                ))}
-              </div>
-
-              {/* Add empty column click */}
-              <button
-                onClick={() => onAddClick(iso)}
-                className="flex w-full items-center justify-center gap-1 py-2 text-white/15 hover:text-white/40 hover:bg-white/4 transition-colors min-h-[36px]"
-              >
-                <Plus size={12} />
-              </button>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
