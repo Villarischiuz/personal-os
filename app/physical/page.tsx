@@ -21,7 +21,7 @@ import {
 } from "@/lib/computations";
 import {
   TrendingUp, TrendingDown, Minus, Package, ShoppingCart,
-  Trophy, Copy, Check, Plus, MoreHorizontal,
+  Trophy, Copy, Check, Plus, MoreHorizontal, Dumbbell,
 } from "@/lib/icons";
 import { cn, pct, today } from "@/lib/utils";
 import type { InventoryItem, WorkoutEntry } from "@/lib/types";
@@ -65,6 +65,85 @@ function SaveBtn({ onClick, children }: { onClick: () => void; children: React.R
     </button>
   );
 }
+
+type WorkoutDay = "Lunedì" | "Mercoledì" | "Venerdì";
+
+interface RoutineExercise {
+  name: string;
+  prescription: string;
+  weight?: string;
+  notes?: string;
+}
+
+interface RoutineDay {
+  day: WorkoutDay;
+  focus: string;
+  warmup: string;
+  cooldown: string;
+  exercises: RoutineExercise[];
+  accent: string;
+  border: string;
+  bg: string;
+}
+
+const WEEKLY_ROUTINE: RoutineDay[] = [
+  {
+    day: "Lunedì",
+    focus: "Petto · Quadricipiti · Spalle · Addome",
+    warmup: "Tappeto riscaldamento · 10 minuti",
+    cooldown: "Tappeto defaticamento · 10-15 minuti",
+    accent: "text-amber-300",
+    border: "border-amber-500/20",
+    bg: "bg-amber-500/5",
+    exercises: [
+      { name: "Spinte Manubri Panca 45°", prescription: "3×10", weight: "12.5 kg" },
+      { name: "Chest Press", prescription: "3×12", weight: "30 kg" },
+      { name: "Fly Machine", prescription: "3×15", weight: "35 kg" },
+      { name: "Calf alla Macchina", prescription: "3×15", weight: "20 kg" },
+      { name: "Leg Extension", prescription: "5×15", weight: "40 kg" },
+      { name: "Alzate Laterali Manubri", prescription: "3×12", weight: "7.5 kg" },
+      { name: "Crunch + Sit Up", prescription: "3×20" },
+    ],
+  },
+  {
+    day: "Mercoledì",
+    focus: "Schiena · Posteriori coscia · Bicipiti · Core",
+    warmup: "Vogatore riscaldamento · 5 minuti",
+    cooldown: "Tappeto / Cyclette defaticamento · 15 minuti",
+    accent: "text-sky-300",
+    border: "border-sky-500/20",
+    bg: "bg-sky-500/5",
+    exercises: [
+      { name: "Stacco Rumeno Manubri", prescription: "3×10", weight: "15 kg" },
+      { name: "Lat Machine Presa Media", prescription: "3×12", weight: "40 kg" },
+      { name: "Pulley Largo", prescription: "3×12", weight: "30 kg" },
+      { name: "Leg Curl Seduto", prescription: "3×15", weight: "45 kg" },
+      { name: "Curl Bilanciere EZ", prescription: "3×10", weight: "10 kg" },
+      { name: "Curl Corda al Cavo Basso", prescription: "3×15", weight: "10 kg" },
+      { name: "Hyperextension", prescription: "3×12" },
+      { name: "Criss Cross", prescription: "3×MAX" },
+    ],
+  },
+  {
+    day: "Venerdì",
+    focus: "Gambe · Petto · Spalle · Tricipiti",
+    warmup: "Air Bike riscaldamento · 5 minuti",
+    cooldown: "Cyclette / Tappeto defaticamento · 20 minuti",
+    accent: "text-violet-300",
+    border: "border-violet-500/20",
+    bg: "bg-violet-500/5",
+    exercises: [
+      { name: "Russian Twist + Mountain Climber", prescription: "1×1" },
+      { name: "Affondi Dietro", prescription: "3×12", weight: "15 kg" },
+      { name: "Abductor", prescription: "3×15", weight: "45 kg" },
+      { name: "Chest a 30°", prescription: "3×10", weight: "15 kg" },
+      { name: "Shoulder Press", prescription: "3×12" },
+      { name: "Push Down Corda", prescription: "3×15" },
+      { name: "French Press Manubri", prescription: "3×12" },
+      { name: "Alzate Frontali Disco + Alzate Post. Manubri", prescription: "3×10" },
+    ],
+  },
+];
 
 // ─── Inventory Sheet ───────────────────────────────────────────
 type InventorySheetState =
@@ -356,6 +435,8 @@ export default function PhysicalPage() {
   const overloadRows = buildOverloadTable(workoutEntries);
   const lowStock = getLowStockItems(inventory);
   const todayMacros = MOCK_MACRO_LOGS[MOCK_MACRO_LOGS.length - 1];
+  const totalRoutineExercises = WEEKLY_ROUTINE.reduce((sum, day) => sum + day.exercises.length, 0);
+  const todayLabel = new Date().toLocaleDateString("it-IT", { weekday: "long" });
 
   // find the most recent workout entry ID for a given exercise name
   function latestEntry(exerciseName: string): WorkoutEntry | null {
@@ -374,6 +455,84 @@ export default function PhysicalPage() {
           Overload progressivo · Inventario · Macro
         </p>
       </div>
+
+      <Card>
+        <CardHeader className="flex-wrap gap-3">
+          <CardTitle>Scheda Settimanale</CardTitle>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="blue">3 giorni</Badge>
+            <span className="text-xs text-white/30">
+              {totalRoutineExercises} esercizi totali · oggi {todayLabel}
+            </span>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+            {WEEKLY_ROUTINE.map((session) => (
+              <div
+                key={session.day}
+                className={cn("rounded-2xl border p-4", session.bg, session.border)}
+              >
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div>
+                    <p className={cn("text-lg font-black", session.accent)}>{session.day}</p>
+                    <p className="mt-1 text-xs text-white/40">{session.focus}</p>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-black/10 px-3 py-2 text-right">
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-white/25">Volume</p>
+                    <p className="mt-1 font-mono text-sm font-bold text-white">
+                      {session.exercises.length} esercizi
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mb-3 rounded-xl border border-blue-500/20 bg-blue-500/10 px-3 py-3">
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-blue-300/80">Riscaldamento</p>
+                  <p className="mt-1 text-sm font-semibold text-blue-200">{session.warmup}</p>
+                </div>
+
+                <div className="space-y-2">
+                  {session.exercises.map((exercise) => (
+                    <div
+                      key={`${session.day}-${exercise.name}`}
+                      className="rounded-xl border border-white/8 bg-black/10 px-3 py-3"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="mt-0.5 rounded-lg bg-white/5 p-2 text-white/30">
+                          <Dumbbell size={14} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold leading-snug text-white/90">
+                            {exercise.name}
+                          </p>
+                          <div className="mt-2 flex flex-wrap items-center gap-2">
+                            <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-bold text-lime-300">
+                              {exercise.prescription}
+                            </span>
+                            {exercise.weight && (
+                              <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] text-white/55">
+                                {exercise.weight}
+                              </span>
+                            )}
+                          </div>
+                          {exercise.notes && (
+                            <p className="mt-2 text-[11px] text-white/35">{exercise.notes}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-3 rounded-xl border border-white/8 bg-white/5 px-3 py-3">
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-white/25">Defaticamento</p>
+                  <p className="mt-1 text-sm font-medium text-white/70">{session.cooldown}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* ─── Overload Table ─────────────────────────────────── */}
       <Card>
