@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Calendar,
   Dumbbell,
@@ -22,6 +22,7 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <>
@@ -69,23 +70,34 @@ export function Sidebar() {
       </aside>
 
       {/* ── Mobile bottom nav ─────────────────────────────── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center border-t border-white/10 bg-[hsl(222,47%,5%)]/95 backdrop-blur-md">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-          const isActive = pathname === href;
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "flex flex-1 flex-col items-center gap-1 py-3 text-center transition-colors",
-                isActive ? "text-blue-400" : "text-white/35 active:text-white/70"
-              )}
-            >
-              <Icon size={20} />
-              <span className="text-[10px] font-medium leading-none">{label}</span>
-            </Link>
-          );
-        })}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[hsl(222,47%,5%)]/95 backdrop-blur-md">
+        {/* Log Action CTA */}
+        <div className="px-4 pt-2 pb-1">
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="w-full rounded-xl bg-blue-600 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-600/20 active:scale-95 transition-transform"
+          >
+            Log Action
+          </button>
+        </div>
+        <div className="flex items-center">
+          {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+            const isActive = pathname === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  "flex flex-1 flex-col items-center gap-1 py-2 text-center transition-colors",
+                  isActive ? "text-blue-400" : "text-white/35 active:text-white/70"
+                )}
+              >
+                <Icon size={18} />
+                <span className="text-[9px] font-medium leading-none">{label}</span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
     </>
   );

@@ -106,6 +106,14 @@ export interface WeeklyEvent {
   color: EventColor;
 }
 
+// ─── INTEGRITY LOG ──────────────────────────────────────────
+export interface IntegrityLog {
+  sunlight: boolean | null;
+  deepWork: boolean | null;
+  emailOutreach: boolean | null;
+  noSideProjects: boolean | null;
+}
+
 // ─── DERIVED / COMPUTED TYPES ────────────────────────────────
 export interface SystemStatus {
   color: "green" | "yellow" | "red";

@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { MOCK_DAILY_LOGS, MOCK_MACRO_LOGS } from "@/lib/mock-data";
-import type { DailyLog, MacroLog } from "@/lib/types";
+import type { DailyLog, MacroLog, IntegrityLog } from "@/lib/types";
 import { today as todayISO } from "@/lib/utils";
 
 function latestDailySeed(): DailyLog {
@@ -50,12 +50,18 @@ function buildInitialState() {
       macros_hit: computeMacrosHit(todayMacros),
     },
     todayMacros,
+    dailyIntegrity: {} as Record<string, IntegrityLog>,
   };
+}
+
+function emptyIntegrity(): IntegrityLog {
+  return { sunlight: null, deepWork: null, emailOutreach: null, noSideProjects: null };
 }
 
 interface BiometricStoreState {
   todayLog: DailyLog;
   todayMacros: MacroLog;
+  dailyIntegrity: Record<string, IntegrityLog>;
 }
 
 interface BiometricStore extends BiometricStoreState {
@@ -65,6 +71,7 @@ interface BiometricStore extends BiometricStoreState {
     logPatch?: Partial<DailyLog>;
     macroPatch?: Partial<MacroLog>;
   }) => void;
+  setIntegrity: (date: string, key: keyof IntegrityLog, value: boolean) => void;
   resetToday: () => void;
 }
 
@@ -115,18 +122,32 @@ export const useBiometricStore = create<BiometricStore>()(
             },
           };
         }),
+      setIntegrity: (date, key, value) =>
+        set((state) => ({
+          dailyIntegrity: {
+            ...state.dailyIntegrity,
+            [date]: {
+              ...(state.dailyIntegrity[date] ?? emptyIntegrity()),
+              [key]: value,
+            },
+          },
+        })),
       resetToday: () => set(buildInitialState()),
     }),
     {
       name: "personal-os-biometrics",
       merge: (persistedState, currentState) => {
+        const persisted = persistedState as Partial<BiometricStoreState>;
         const merged = {
           ...currentState,
-          ...(persistedState as Partial<BiometricStoreState>),
+          ...persisted,
         } as BiometricStoreState;
 
         if (merged.todayLog?.date !== todayISO()) {
-          return buildInitialState() as BiometricStore;
+          return {
+            ...buildInitialState(),
+            dailyIntegrity: persisted.dailyIntegrity ?? {},
+          } as BiometricStore;
         }
 
         return {

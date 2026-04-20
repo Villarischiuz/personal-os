@@ -1,0 +1,21 @@
+{
+  "name": "PersonalOS",
+  "short_name": "PersonalOS",
+  "description": "Cognitive efficiency & physical performance dashboard",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#0a1628",
+  "background_color": "#0a1628",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "health", "utilities"],
+  "lang": "it"
+}
