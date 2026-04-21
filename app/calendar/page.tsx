@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { EnergyBlock, WeeklyEvent } from "@/lib/types";
+import type { EnergyBlock, WeeklyEvent, EventTag } from "@/lib/types";
 import { QuickCapture } from "@/components/calendar/QuickCapture";
 import { InboxPanel } from "@/components/calendar/InboxPanel";
 import { EnergyCalendar } from "@/components/calendar/EnergyCalendar";
@@ -12,6 +12,13 @@ import { CalendarViews } from "@/components/calendar/CalendarViews";
 import { CrudSheet, type CrudContext } from "@/components/global/CrudSheet";
 import { useKanbanStore } from "@/lib/stores/workStore";
 import { Zap, Inbox, Clock, Sun, Sunset, Moon, ArrowUpRight, Target } from "@/lib/icons";
+import { cn } from "@/lib/utils";
+
+const TAG_STYLE: Record<EventTag, string> = {
+  Deep:     "border-blue-500/40 bg-blue-500/15 text-blue-300",
+  Creative: "border-violet-500/40 bg-violet-500/15 text-violet-300",
+  Rest:     "border-green-500/40 bg-green-500/15 text-green-300",
+};
 
 // 0=Lun … 6=Dom (compatibile con WeeklyEvent)
 function todayDow(): 0|1|2|3|4|5|6 {
@@ -26,7 +33,7 @@ export default function CalendarPage() {
     open: false,
     ctx: null,
   });
-  const { events: weeklyEvents, replaceAll } = useWeeklySchedule();
+  const { events: weeklyEvents, replaceAll, loadProtocol } = useWeeklySchedule();
   const { tasks, addFull, updateTask, deleteTask } = useKanbanStore();
 
   const inboxTasks = tasks.filter((t) => t.status === "Inbox" && !t.energy_block);
@@ -84,7 +91,7 @@ export default function CalendarPage() {
       <QuickCapture onCapture={addToInbox} />
 
       {/* Weekly Planner (collapsibile) */}
-      <WeeklyPlanner onApply={handleReplaceAll} />
+      <WeeklyPlanner onApply={handleReplaceAll} onLoadProtocol={loadProtocol} />
 
       {/* Task Inbox + Energy Calendar */}
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[340px_1fr]">
@@ -221,14 +228,19 @@ export default function CalendarPage() {
             <div className="space-y-2">
               {todaysEvents.map((event) => (
                 <div key={event.id} className="flex items-center gap-3 rounded-xl border border-white/8 bg-black/10 px-3 py-2.5">
-                  <span className="font-mono text-xs text-white/45">
+                  <span className="font-mono text-xs text-white/45 flex-shrink-0">
                     {String(event.hour).padStart(2, "0")}:{String(event.minute).padStart(2, "0")}
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-white/85">{event.title}</p>
                     <p className="text-[11px] text-white/30">{event.durationMins} minuti</p>
                   </div>
-                  <ArrowUpRight size={13} className="text-white/20" />
+                  {event.tag && (
+                    <span className={cn("flex-shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold", TAG_STYLE[event.tag])}>
+                      {event.tag}
+                    </span>
+                  )}
+                  <ArrowUpRight size={13} className="text-white/20 flex-shrink-0" />
                 </div>
               ))}
               {todaysEvents.length === 0 && (

@@ -3,7 +3,13 @@
 import { useState, useEffect } from "react";
 import { Plus, X, Clock, ChevronRight } from "@/lib/icons";
 import { cn, localDateString } from "@/lib/utils";
-import type { WeeklyEvent, EventColor } from "@/lib/types";
+import type { WeeklyEvent, EventColor, EventTag } from "@/lib/types";
+
+const TAG_STYLE: Record<EventTag, string> = {
+  Deep:     "border-blue-500/50 bg-blue-500/20 text-blue-300",
+  Creative: "border-violet-500/50 bg-violet-500/20 text-violet-300",
+  Rest:     "border-green-500/50 bg-green-500/20 text-green-300",
+};
 
 // ─── Types ────────────────────────────────────────────────────
 interface OneOffEvent {
@@ -206,7 +212,14 @@ export function DailyScheduleCalendar({ weeklyEvents, selectedDayOfWeek, onDayCh
               style={{ left: 56, right: 64, top: top + 2, height }}
               title="Evento del piano settimanale"
             >
-              <p className={cn("text-xs font-medium truncate", c.text)}>{ev.title}</p>
+              <div className="flex items-start justify-between gap-1">
+                <p className={cn("text-xs font-medium truncate", c.text)}>{ev.title}</p>
+                {ev.tag && height > 24 && (
+                  <span className={cn("flex-shrink-0 rounded-full border px-1.5 py-px text-[8px] font-bold leading-tight", TAG_STYLE[ev.tag])}>
+                    {ev.tag}
+                  </span>
+                )}
+              </div>
               {height > 30 && (
                 <p className="flex items-center gap-1 text-[9px] text-white/30 mt-0.5">
                   <Clock size={8} />{ev.durationMins}m

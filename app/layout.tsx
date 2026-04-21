@@ -37,6 +37,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   minimumScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -52,7 +53,10 @@ export default function RootLayout({
       <body className="min-h-full overflow-x-hidden bg-[hsl(222,47%,6%)] text-white antialiased md:pl-56">
         <ServiceWorkerRegister />
         <Sidebar />
-        <main className="min-h-screen min-w-0 max-w-full px-4 py-6 pb-[220px] md:px-10 md:py-10 md:pb-10">
+        <main
+          className="min-h-screen min-w-0 max-w-full px-4 py-6 md:!pb-10 md:px-10 md:py-10"
+          style={{ paddingBottom: "calc(280px + env(safe-area-inset-bottom, 0px))" }}
+        >
           {children}
         </main>
         <QuickCaptureOverlay />

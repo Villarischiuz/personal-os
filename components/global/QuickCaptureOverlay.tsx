@@ -50,7 +50,8 @@ export function QuickCaptureOverlay() {
       <button
         onClick={() => setOpen(true)}
         aria-label="Cattura task"
-        className="fixed bottom-[72px] right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 shadow-lg shadow-blue-900/50 active:scale-95 transition-transform md:hidden"
+        className="fixed right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 shadow-lg shadow-blue-900/50 active:scale-95 transition-transform md:hidden"
+        style={{ bottom: "calc(116px + env(safe-area-inset-bottom, 0px))" }}
       >
         <Plus size={24} className="text-white" />
       </button>

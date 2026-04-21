@@ -93,7 +93,8 @@ export function AICopilot() {
       </button>
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-[140px] right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-violet-500/40 bg-violet-500/20 md:hidden active:scale-95 transition-transform"
+        className="fixed right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-violet-500/40 bg-violet-500/20 md:hidden active:scale-95 transition-transform"
+        style={{ bottom: "calc(192px + env(safe-area-inset-bottom, 0px))" }}
         aria-label="AI Co-Pilot"
       >
         <Brain size={20} className="text-violet-300" />

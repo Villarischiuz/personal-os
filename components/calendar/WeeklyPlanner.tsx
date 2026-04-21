@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Plus, ChevronRight, RefreshCw, Star, Zap } from "@/lib/icons";
 import { cn } from "@/lib/utils";
-import type { WeeklyEvent, EventColor } from "@/lib/types";
+import type { WeeklyEvent, EventColor, EventTag } from "@/lib/types";
 
 // ─── Constants ────────────────────────────────────────────────
 const DAYS = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
@@ -28,9 +28,9 @@ const DAY_MAP: Record<string, number[]> = {
 
 const COLOR_KEYWORDS: { keywords: string[]; color: EventColor }[] = [
   { keywords: ["allenamento", "palestra", "sport", "corsa", "nuoto", "ciclismo", "yoga"], color: "orange" },
-  { keywords: ["lavoro", "deep work", "riunione", "meeting", "call", "progetto", "coding", "sviluppo"], color: "blue" },
-  { keywords: ["pranzo", "cena", "colazione", "pasto", "meal prep", "riposo", "pausa", "relax"], color: "green" },
-  { keywords: ["studio", "inglese", "lingua", "lettura", "corso", "apprendimento", "libro"], color: "violet" },
+  { keywords: ["lavoro", "deep work", "riunione", "meeting", "call", "progetto", "coding", "sviluppo", "lead gen", "outreach", "crm", "follow-up"], color: "blue" },
+  { keywords: ["pranzo", "cena", "colazione", "pasto", "meal prep", "riposo", "pausa", "relax", "passeggiata", "cane"], color: "green" },
+  { keywords: ["studio", "inglese", "lingua", "lettura", "corso", "apprendimento", "libro", "data science", "polito", "simulazioni", "graphic", "grafica", "foto", "photo", "editing", "model"], color: "violet" },
 ];
 
 function guessColor(title: string): EventColor {
@@ -39,6 +39,14 @@ function guessColor(title: string): EventColor {
     if (keywords.some((k) => lower.includes(k))) return color;
   }
   return "rose";
+}
+
+const TAG_SUFFIX_RE = /\s*\[(Deep|Creative|Rest)\]\s*$/i;
+
+function extractTag(rawTitle: string): { title: string; tag?: EventTag } {
+  const m = rawTitle.match(TAG_SUFFIX_RE);
+  if (!m) return { title: rawTitle.trim() };
+  return { title: rawTitle.slice(0, -m[0].length).trim(), tag: m[1] as EventTag };
 }
 
 function parseDuration(raw: string): number {
@@ -82,17 +90,18 @@ export function parseBatchInput(text: string): Omit<WeeklyEvent, "id">[] {
 
     if (!m) continue;
 
-    const [, rawDays, rawH, rawM, title, rawDur] = m;
+    const [, rawDays, rawH, rawM, rawTitle, rawDur] = m;
     const days = parseDays(rawDays);
     if (days.length === 0) continue;
 
     const hour = parseInt(rawH);
-    const minute = parseInt(rawM) >= 30 ? 30 : 0;
+    const minute = parseInt(rawM);
     const durationMins = parseDuration(rawDur);
+    const { title, tag } = extractTag(rawTitle);
     const color = guessColor(title);
 
     for (const dayOfWeek of days as (0|1|2|3|4|5|6)[]) {
-      events.push({ title: title.trim(), dayOfWeek, hour, minute, durationMins, color });
+      events.push({ title, dayOfWeek, hour, minute, durationMins, color, tag });
     }
   }
 
@@ -184,11 +193,34 @@ function MiniWeekGrid({ events }: { events: Omit<WeeklyEvent, "id">[] }) {
 }
 
 // ─── Main component ───────────────────────────────────────────
+const DS_EN_PRESET = `# Protocollo: Data Science in English
+# ── Lunedì · Mercoledì · Venerdì ───────────────────────────
+Lun,Mer,Ven 09:15 Colazione Metabolica [Rest] 45m
+Lun,Mer,Ven 10:00 Deep Work: Data Science e Inglese [Deep] 2h
+Lun,Mer,Ven 12:00 Palestra [Rest] 1h30m
+Lun,Mer,Ven 13:30 Pranzo [Rest] 30m
+Lun,Mer,Ven 14:00 Passeggiata con il Cane [Rest] 45m
+Lun,Mer,Ven 15:00 Lead Gen Outreach [Creative] 1h
+Lun,Mer,Ven 16:00 Skappa Graphics [Creative] 1h30m
+# ── Martedì · Giovedì ──────────────────────────────────────
+Mar,Gio 09:15 Colazione Metabolica [Rest] 45m
+Mar,Gio 10:00 Deep Work: Simulazioni Esame Inglese [Deep] 1h30m
+Mar,Gio 11:45 Deep Work: Polito Data Science Prep [Deep] 1h30m
+Mar,Gio 13:30 Pranzo [Rest] 30m
+Mar,Gio 14:00 Passeggiata con il Cane [Rest] 45m
+Mar,Gio 15:00 AI Model Photos e Editing [Creative] 2h
+Mar,Gio 17:00 CRM e Follow-up [Creative] 1h
+# ── Solo venerdì ───────────────────────────────────────────
+Ven 19:00 Corso di Graphic Design [Creative] 2h
+# ── Solo martedì ───────────────────────────────────────────
+Mar 19:00 Corso di Graphic Design [Creative] 2h`;
+
 interface Props {
   onApply: (events: Omit<WeeklyEvent, "id">[]) => void;
+  onLoadProtocol?: () => void;
 }
 
-export function WeeklyPlanner({ onApply }: Props) {
+export function WeeklyPlanner({ onApply, onLoadProtocol }: Props) {
   const [open, setOpen] = useState(false);
   const [batchText, setBatchText] = useState("");
   const [aiPrompt, setAiPrompt] = useState("");
@@ -327,6 +359,20 @@ export function WeeklyPlanner({ onApply }: Props) {
             >
               <RefreshCw size={12} /> Carica template
             </button>
+            <button
+              onClick={() => { setBatchText(DS_EN_PRESET); setPreviewGenerated(false); }}
+              className="flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-1.5 text-xs font-medium text-blue-300 transition-colors hover:bg-blue-500/20"
+            >
+              DS+EN Protocol
+            </button>
+            {onLoadProtocol && (
+              <button
+                onClick={() => { onLoadProtocol(); setOpen(false); }}
+                className="flex items-center gap-1.5 rounded-lg border border-blue-500/40 bg-blue-500/15 px-3 py-1.5 text-xs font-bold text-blue-200 transition-colors hover:bg-blue-500/25"
+              >
+                ✓ Applica Protocollo DS+EN
+              </button>
+            )}
             <button
               onClick={() => setShowAI((s) => !s)}
               className={cn(
