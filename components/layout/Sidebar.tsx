@@ -13,11 +13,11 @@ import {
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { href: "/calendar", label: "Calendario", icon: Calendar },
+  { href: "/study",     label: "Studio",    icon: GraduationCap },
   { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
-  { href: "/physical", label: "Fisico", icon: Dumbbell },
-  { href: "/work", label: "Lavoro", icon: BriefcaseBusiness },
-  { href: "/study", label: "Studio", icon: GraduationCap },
+  { href: "/calendar",  label: "Calendario", icon: Calendar },
+  { href: "/physical",  label: "Fisico",    icon: Dumbbell },
+  { href: "/work",      label: "Lavoro",    icon: BriefcaseBusiness },
 ] as const;
 
 export function Sidebar() {
@@ -70,7 +70,10 @@ export function Sidebar() {
       </aside>
 
       {/* ── Mobile bottom nav ─────────────────────────────── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[hsl(222,47%,5%)]/95 backdrop-blur-md">
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[hsl(222,47%,5%)]/95 backdrop-blur-md"
+        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      >
         {/* Log Action CTA */}
         <div className="px-4 pt-2 pb-1">
           <button

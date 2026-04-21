@@ -9,6 +9,9 @@ import { UpdateMetricsSheet } from "@/components/dashboard/UpdateMetricsSheet";
 import { ExamCountdown } from "@/components/dashboard/ExamCountdown";
 import { DailyIntegrityCheck } from "@/components/dashboard/DailyIntegrityCheck";
 import { ConsistencyHeatmap } from "@/components/dashboard/ConsistencyHeatmap";
+import { BlockProgressBar } from "@/components/dashboard/BlockProgressBar";
+import { SmartContextCard } from "@/components/dashboard/SmartContextCard";
+import { useContextualPriority } from "@/lib/hooks/useContextualPriority";
 import { useBiometricStore } from "@/lib/stores/biometricStore";
 import { MOCK_DAILY_LOGS } from "@/lib/mock-data";
 import { useKanbanStore } from "@/lib/stores/workStore";
@@ -50,6 +53,8 @@ export default function CommandCenter() {
   }
 
   const block = useCurrentBlock();
+  const priority = useContextualPriority();
+  const [peakBannerDismissed, setPeakBannerDismissed] = useState(false);
 
   const dashboardLogs = [
     ...MOCK_DAILY_LOGS.filter((log) => log.date !== todayLog.date),
@@ -72,6 +77,9 @@ export default function CommandCenter() {
 
   return (
     <div className="w-full space-y-6">
+      {/* Smart context card — time+day aware priority widget */}
+      <SmartContextCard priority={priority} />
+
       {/* Heatmap — mobile first (above everything on small screens) */}
       <div className="md:hidden">
         <ConsistencyHeatmap />
@@ -120,6 +128,33 @@ export default function CommandCenter() {
           <Badge variant="blue">v1.0</Badge>
         </div>
       </div>
+
+      {/* Block progress bar */}
+      <BlockProgressBar />
+
+      {/* Peak auto-suggestion banner */}
+      {block.name === "Peak" && !focusMode && !peakBannerDismissed && (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-blue-500/20 bg-blue-500/8 px-4 py-3">
+          <div>
+            <p className="text-sm font-semibold text-blue-300">Blocco Peak attivo</p>
+            <p className="text-xs text-blue-300/60">Attiva Focus Mode per eliminare le distrazioni</p>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              onClick={toggleFocusMode}
+              className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-500 transition-colors"
+            >
+              Attiva
+            </button>
+            <button
+              onClick={() => setPeakBannerDismissed(true)}
+              className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/40 hover:bg-white/8 transition-colors"
+            >
+              Ignora
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Focus mode banner */}
       {focusMode && (

@@ -51,6 +51,7 @@ function buildInitialState() {
     },
     todayMacros,
     dailyIntegrity: {} as Record<string, IntegrityLog>,
+    dailyLogs: [] as DailyLog[],
   };
 }
 
@@ -62,9 +63,10 @@ interface BiometricStoreState {
   todayLog: DailyLog;
   todayMacros: MacroLog;
   dailyIntegrity: Record<string, IntegrityLog>;
+  dailyLogs: DailyLog[];
 }
 
-interface BiometricStore extends BiometricStoreState {
+export interface BiometricStore extends BiometricStoreState {
   updateTodayLog: (patch: Partial<DailyLog>) => void;
   updateTodayMacros: (patch: Partial<MacroLog>) => void;
   updateTodayMetrics: (payload: {
@@ -144,14 +146,21 @@ export const useBiometricStore = create<BiometricStore>()(
         } as BiometricStoreState;
 
         if (merged.todayLog?.date !== todayISO()) {
+          const prevLog = persisted.todayLog;
+          const oldLogs = persisted.dailyLogs ?? [];
+          const dailyLogs = (prevLog && !oldLogs.some((l) => l.date === prevLog.date))
+            ? [...oldLogs, prevLog].slice(-90)
+            : oldLogs;
           return {
             ...buildInitialState(),
+            dailyLogs,
             dailyIntegrity: persisted.dailyIntegrity ?? {},
           } as BiometricStore;
         }
 
         return {
           ...merged,
+          dailyLogs: persisted.dailyLogs ?? [],
           todayLog: {
             ...merged.todayLog,
             macros_hit: computeMacrosHit(merged.todayMacros),

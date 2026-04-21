@@ -1,4 +1,4 @@
-const CACHE = "personal-os-v1";
+const CACHE = "personal-os-v2";
 const SHELL = ["/dashboard", "/calendar", "/physical", "/work", "/study"];
 
 self.addEventListener("install", (e) => {
@@ -16,14 +16,15 @@ self.addEventListener("activate", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
-  // Only cache GET navigation requests; pass through API/Next.js internals
   if (e.request.method !== "GET") return;
-  if (e.request.url.includes("/_next/") || e.request.url.includes("/api/")) return;
+  const url = new URL(e.request.url);
+  // Pass through API calls and Next.js data fetches; cache static assets
+  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/_next/data/")) return;
 
   e.respondWith(
     caches.match(e.request).then((cached) => {
       const network = fetch(e.request).then((res) => {
-        if (res.ok && e.request.mode === "navigate") {
+        if (res.ok && (e.request.mode === "navigate" || url.pathname.startsWith("/_next/static/"))) {
           caches.open(CACHE).then((c) => c.put(e.request, res.clone()));
         }
         return res;
