@@ -94,16 +94,18 @@ export interface MacroLog {
 
 // ─── CALENDAR ────────────────────────────────────────────────
 export type EventColor = "blue" | "green" | "orange" | "violet" | "rose";
+export type EventTag = "Deep" | "Creative" | "Rest";
 
 export interface WeeklyEvent {
   id: string;
   title: string;
   /** 0=Lunedì … 6=Domenica */
   dayOfWeek: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-  hour: number;   // 6–22
-  minute: number; // 0 | 30
+  hour: number;
+  minute: number;
   durationMins: number;
   color: EventColor;
+  tag?: EventTag;
 }
 
 // ─── INTEGRITY LOG ──────────────────────────────────────────
@@ -112,6 +114,35 @@ export interface IntegrityLog {
   deepWork: boolean | null;
   emailOutreach: boolean | null;
   noSideProjects: boolean | null;
+}
+
+// ─── ROUTINE ─────────────────────────────────────────────────
+export interface RoutineExercise {
+  id: string;
+  name: string;
+  prescription: string;
+  weightNum?: number;
+  weightUnit: "kg" | "lbs";
+  notes?: string;
+}
+
+export interface RoutineDay {
+  day: string;
+  focus: string;
+  warmup: string;
+  cooldown: string;
+  exercises: RoutineExercise[];
+  accent: string;
+  border: string;
+  bg: string;
+}
+
+export interface WeightLog {
+  id: string;
+  exerciseName: string;
+  weightNum: number;
+  weightUnit: "kg" | "lbs";
+  date: string;
 }
 
 // ─── DERIVED / COMPUTED TYPES ────────────────────────────────
