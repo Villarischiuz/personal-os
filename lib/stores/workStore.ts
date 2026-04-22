@@ -62,7 +62,7 @@ export const useKanbanStore = create<KanbanStore>()(
         set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id) })),
     }),
     {
-      name: "personal-os-kanban",
+      name: "personal-os-kanban-v2",
       onRehydrateStorage: () => (state) => {
         if (state) state._hydrated = true;
       },

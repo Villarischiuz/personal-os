@@ -197,6 +197,6 @@ export const usePhysicalStore = create<PhysicalStore>()(
           ],
         })),
     }),
-    { name: "personal-os-physical" }
+    { name: "personal-os-physical-v2" }
   )
 );

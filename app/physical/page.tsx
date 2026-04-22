@@ -91,6 +91,237 @@ function SaveBtn({ onClick, children }: { onClick: () => void; children: React.R
   );
 }
 
+// ─── Meal Plan ────────────────────────────────────────────────
+type MealKey = "colazione" | "spuntino_mattina" | "pranzo" | "spuntino_pomeriggio" | "cena";
+
+interface MealGroup { label: string; options: string[] }
+interface MealData {
+  label: string;
+  emoji: string;
+  timeRange: string;
+  note?: string;
+  supplements?: string[];
+  groups: MealGroup[];
+}
+
+const MEAL_PLAN: Record<MealKey, MealData> = {
+  colazione: {
+    label: "Colazione",
+    emoji: "☀️",
+    timeRange: "Prima delle 11:00",
+    note: "15 min prima: 2 bicchieri acqua essenziale",
+    supplements: ["1 cps Multivitaminico", "1 cps Omega 3", "5g Creatina in 300ml acqua"],
+    groups: [
+      {
+        label: "Carboidrati — scegli 1",
+        options: [
+          "30g Fette Biscottate Integrali",
+          "30g Flakes di Mais",
+          "50g Pan Bauletto Integrale tostato",
+          "30g Farina d'Avena Aromatizzata",
+          "30g Crema di Riso Aromatizzata",
+        ],
+      },
+      {
+        label: "Proteine — scegli 1",
+        options: [
+          "200ml Albume",
+          "200g Yogurt Greco",
+          "25g Whey Isolate + 200ml Bevanda Vegetale (zero zuccheri)",
+        ],
+      },
+      {
+        label: "Extra",
+        options: ["1 Uovo", "10g Frutta Secca pelata (senza sale)", "Marmellata Hero Light o Top Zero Kcal"],
+      },
+    ],
+  },
+  spuntino_mattina: {
+    label: "Spuntino Mattina",
+    emoji: "⚡",
+    timeRange: "11:00 – 13:00",
+    groups: [
+      {
+        label: "Snack",
+        options: ["15g Frutta Secca (senza sale)", "300ml Acqua Oligominerale"],
+      },
+    ],
+  },
+  pranzo: {
+    label: "Pranzo",
+    emoji: "🥗",
+    timeRange: "13:00 – 16:00",
+    supplements: ["1 cps Omega 3"],
+    groups: [
+      {
+        label: "Carboidrati — scegli 1",
+        options: [
+          "80g Pasta Integrale",
+          "80g Riso Basmati",
+          "150g Pane Integrale",
+          "350g Patate",
+          "80g Cous Cous",
+        ],
+      },
+      {
+        label: "Proteine — scegli 1",
+        options: [
+          "150g Petto di Pollo",
+          "150g Petto di Tacchino",
+          "150g Lonza di Maiale",
+          "250g Pesce Bianco",
+          "120g Fesa di Tacchino",
+          "120g Tonno al Naturale",
+        ],
+      },
+      {
+        label: "Extra",
+        options: ["200g Verdure", "10g Olio EVO a crudo", "1g Sale a crudo", "600ml Acqua Oligominerale"],
+      },
+    ],
+  },
+  spuntino_pomeriggio: {
+    label: "Spuntino / Post-Workout",
+    emoji: "🏋️",
+    timeRange: "16:00 – 19:00",
+    note: "Giorni palestra (Lun/Mer/Ven): salta spuntino → fai solo Post-Workout",
+    groups: [
+      {
+        label: "Post-Workout — giorni palestra",
+        options: ["25g Whey Isolate", "30g Gallette di Riso o Mais"],
+      },
+      {
+        label: "Carboidrati — scegli 1 (no palestra)",
+        options: ["30g Wasa", "50g Pane Integrale", "30g Gallette di Riso o Mais"],
+      },
+      {
+        label: "Proteine — scegli 1 (no palestra)",
+        options: ["80g Fesa di Tacchino", "50g Bresaola", "150g Kefir", "25g Whey Isolate"],
+      },
+      {
+        label: "Extra (no palestra)",
+        options: ["10g Frutta Secca / 10g Cioccolato Fondente 80%", "300ml Acqua Oligominerale"],
+      },
+    ],
+  },
+  cena: {
+    label: "Cena",
+    emoji: "🌙",
+    timeRange: "19:00 – 23:00",
+    supplements: ["1 cps Omega 3"],
+    groups: [
+      {
+        label: "Carboidrati — scegli 1",
+        options: [
+          "300g Patate",
+          "70g Cous Cous Integrale",
+          "100g Piadina Integrale",
+          "70g Pasta Integrale",
+          "70g Gallette di Riso o Mais",
+        ],
+      },
+      {
+        label: "Proteine — scegli 1",
+        options: [
+          "250g Pesce Bianco",
+          "150g Petto di Pollo",
+          "150g Lonza di Maiale",
+          "150g Filetto Bovino Magro (max 2×/sett.)",
+          "250g Albume",
+        ],
+      },
+      {
+        label: "Extra",
+        options: ["200g Verdure", "10g Olio EVO a crudo + 1 Uovo", "1.5g Sale a crudo", "600ml Acqua Oligominerale"],
+      },
+    ],
+  },
+};
+
+const MEAL_ORDER: MealKey[] = ["colazione", "spuntino_mattina", "pranzo", "spuntino_pomeriggio", "cena"];
+const MEAL_COLORS: Record<MealKey, { border: string; bg: string; text: string; sup: string }> = {
+  colazione:           { border: "border-amber-500/25",  bg: "bg-amber-500/5",  text: "text-amber-300",  sup: "border-amber-500/20 bg-amber-500/8 text-amber-200" },
+  spuntino_mattina:    { border: "border-lime-500/25",   bg: "bg-lime-500/5",   text: "text-lime-300",   sup: "border-lime-500/20 bg-lime-500/8 text-lime-200" },
+  pranzo:              { border: "border-blue-500/25",   bg: "bg-blue-500/5",   text: "text-blue-300",   sup: "border-cyan-500/20 bg-cyan-500/8 text-cyan-200" },
+  spuntino_pomeriggio: { border: "border-orange-500/25", bg: "bg-orange-500/5", text: "text-orange-300", sup: "border-orange-500/20 bg-orange-500/8 text-orange-200" },
+  cena:                { border: "border-violet-500/25", bg: "bg-violet-500/5", text: "text-violet-300", sup: "border-violet-500/20 bg-violet-500/8 text-violet-200" },
+};
+
+function getMealKey(hour: number): MealKey {
+  if (hour < 11) return "colazione";
+  if (hour < 13) return "spuntino_mattina";
+  if (hour < 16) return "pranzo";
+  if (hour < 20) return "spuntino_pomeriggio";
+  return "cena";
+}
+
+function MealPlanCard() {
+  const hour = new Date().getHours();
+  const mealKey = getMealKey(hour);
+  const meal = MEAL_PLAN[mealKey];
+  const currentIdx = MEAL_ORDER.indexOf(mealKey);
+  const nextKey = MEAL_ORDER[(currentIdx + 1) % MEAL_ORDER.length];
+  const nextMeal = MEAL_PLAN[nextKey];
+  const colors = MEAL_COLORS[mealKey];
+
+  return (
+    <Card>
+      <CardHeader className="flex-wrap gap-3">
+        <div className="flex items-center gap-3">
+          <span className="text-xl leading-none">{meal.emoji}</span>
+          <div>
+            <CardTitle>{meal.label}</CardTitle>
+            <p className="text-xs text-white/30 mt-0.5">{meal.timeRange}</p>
+          </div>
+        </div>
+        <Badge variant="blue">Piano Nutrizionale Apr 2026</Badge>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {meal.note && (
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-3 py-2.5">
+            <p className="text-xs text-amber-300/80">{meal.note}</p>
+          </div>
+        )}
+
+        {meal.supplements && meal.supplements.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-[10px] uppercase tracking-widest text-white/35 font-semibold">Supplementi</p>
+            <div className="flex flex-wrap gap-2">
+              {meal.supplements.map((s, i) => (
+                <span key={i} className={cn("rounded-lg border px-2.5 py-1 text-xs font-medium", colors.sup)}>
+                  {s}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {meal.groups.map((group, gi) => (
+          <div key={gi} className="space-y-1.5">
+            <p className="text-[10px] uppercase tracking-widest text-white/35 font-semibold">{group.label}</p>
+            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+              {group.options.map((opt, oi) => (
+                <div key={oi} className={cn("rounded-xl border px-3 py-2.5", colors.border, colors.bg)}>
+                  <p className={cn("text-sm font-medium leading-snug", colors.text)}>{opt}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        <div className="flex items-center justify-between pt-2 border-t border-white/8">
+          <p className="text-xs text-white/25">
+            Prossimo pasto:{" "}
+            <span className="text-white/45 font-medium">
+              {nextMeal.emoji} {nextMeal.label} ({nextMeal.timeRange})
+            </span>
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 // ─── Inventory Sheet ───────────────────────────────────────────
 type InventorySheetState =
   | { open: false }
@@ -376,9 +607,12 @@ export default function PhysicalPage() {
       <div>
         <h1 className="text-2xl font-black tracking-tight text-white">Piano Fisico</h1>
         <p className="mt-1 text-sm text-white/40">
-          Scheda settimanale · Inventario · Macro
+          Piano nutrizionale · Scheda settimanale · Inventario · Macro
         </p>
       </div>
+
+      {/* ─── Piano Nutrizionale ──────────────────────────── */}
+      <MealPlanCard />
 
       {/* ─── Scheda Settimanale ──────────────────────────── */}
       <Card>
