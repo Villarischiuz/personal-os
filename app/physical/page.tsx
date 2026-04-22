@@ -256,6 +256,7 @@ function getMealKey(hour: number): MealKey {
 }
 
 function MealPlanCard() {
+  const [fullOpen, setFullOpen] = useState(false);
   const hour = new Date().getHours();
   const mealKey = getMealKey(hour);
   const meal = MEAL_PLAN[mealKey];
@@ -265,60 +266,141 @@ function MealPlanCard() {
   const colors = MEAL_COLORS[mealKey];
 
   return (
-    <Card>
-      <CardHeader className="flex-wrap gap-3">
-        <div className="flex items-center gap-3">
-          <span className="text-xl leading-none">{meal.emoji}</span>
-          <div>
-            <CardTitle>{meal.label}</CardTitle>
-            <p className="text-xs text-white/30 mt-0.5">{meal.timeRange}</p>
-          </div>
-        </div>
-        <Badge variant="blue">Piano Nutrizionale Apr 2026</Badge>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {meal.note && (
-          <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-3 py-2.5">
-            <p className="text-xs text-amber-300/80">{meal.note}</p>
-          </div>
-        )}
-
-        {meal.supplements && meal.supplements.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-[10px] uppercase tracking-widest text-white/35 font-semibold">Supplementi</p>
-            <div className="flex flex-wrap gap-2">
-              {meal.supplements.map((s, i) => (
-                <span key={i} className={cn("rounded-lg border px-2.5 py-1 text-xs font-medium", colors.sup)}>
-                  {s}
-                </span>
-              ))}
+    <>
+      <Card>
+        <CardHeader className="flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <span className="text-xl leading-none">{meal.emoji}</span>
+            <div>
+              <CardTitle>{meal.label}</CardTitle>
+              <p className="text-xs text-white/30 mt-0.5">{meal.timeRange}</p>
             </div>
           </div>
-        )}
+          <Badge variant="blue">Piano Nutrizionale Apr 2026</Badge>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {meal.note && (
+            <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-3 py-2.5">
+              <p className="text-xs text-amber-300/80">{meal.note}</p>
+            </div>
+          )}
 
-        {meal.groups.map((group, gi) => (
-          <div key={gi} className="space-y-1.5">
-            <p className="text-[10px] uppercase tracking-widest text-white/35 font-semibold">{group.label}</p>
-            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-              {group.options.map((opt, oi) => (
-                <div key={oi} className={cn("rounded-xl border px-3 py-2.5", colors.border, colors.bg)}>
-                  <p className={cn("text-sm font-medium leading-snug", colors.text)}>{opt}</p>
+          {meal.supplements && meal.supplements.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest text-white/35 font-semibold">Supplementi</p>
+              <div className="flex flex-wrap gap-2">
+                {meal.supplements.map((s, i) => (
+                  <span key={i} className={cn("rounded-lg border px-2.5 py-1 text-xs font-medium", colors.sup)}>
+                    {s}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {meal.groups.map((group, gi) => (
+            <div key={gi} className="space-y-1.5">
+              <p className="text-[10px] uppercase tracking-widest text-white/35 font-semibold">{group.label}</p>
+              <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                {group.options.map((opt, oi) => (
+                  <div key={oi} className={cn("rounded-xl border px-3 py-2.5", colors.border, colors.bg)}>
+                    <p className={cn("text-sm font-medium leading-snug", colors.text)}>{opt}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          <div className="flex items-center justify-between pt-2 border-t border-white/8">
+            <p className="text-xs text-white/25">
+              Prossimo pasto:{" "}
+              <span className="text-white/45 font-medium">
+                {nextMeal.emoji} {nextMeal.label} ({nextMeal.timeRange})
+              </span>
+            </p>
+            <button
+              onClick={() => setFullOpen(true)}
+              className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-white/8 hover:text-white transition-colors"
+            >
+              Scheda Completa
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Sheet open={fullOpen} onOpenChange={setFullOpen}>
+        <SheetContent side="right" className="w-full max-w-lg overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Piano Nutrizionale Completo</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 space-y-6">
+            {MEAL_ORDER.map((key) => {
+              const m = MEAL_PLAN[key];
+              const c = MEAL_COLORS[key];
+              const isActive = key === mealKey;
+              return (
+                <div
+                  key={key}
+                  className={cn(
+                    "rounded-2xl border p-4 space-y-3",
+                    c.border,
+                    c.bg,
+                    isActive && "ring-1 ring-white/20"
+                  )}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg leading-none">{m.emoji}</span>
+                      <div>
+                        <p className={cn("text-sm font-bold", c.text)}>{m.label}</p>
+                        <p className="text-[11px] text-white/30">{m.timeRange}</p>
+                      </div>
+                    </div>
+                    {isActive && (
+                      <span className="rounded-full border border-white/20 bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-white/60">
+                        ora
+                      </span>
+                    )}
+                  </div>
+
+                  {m.note && (
+                    <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-3 py-2">
+                      <p className="text-xs text-amber-300/80">{m.note}</p>
+                    </div>
+                  )}
+
+                  {m.supplements && m.supplements.length > 0 && (
+                    <div className="space-y-1.5">
+                      <p className="text-[10px] uppercase tracking-widest text-white/35 font-semibold">Supplementi</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {m.supplements.map((s, i) => (
+                          <span key={i} className={cn("rounded-lg border px-2 py-0.5 text-xs font-medium", c.sup)}>
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {m.groups.map((group, gi) => (
+                    <div key={gi} className="space-y-1.5">
+                      <p className="text-[10px] uppercase tracking-widest text-white/35 font-semibold">{group.label}</p>
+                      <div className="space-y-1">
+                        {group.options.map((opt, oi) => (
+                          <div key={oi} className="rounded-lg border border-white/8 bg-black/10 px-3 py-2">
+                            <p className={cn("text-xs font-medium leading-snug", c.text)}>{opt}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
-        ))}
-
-        <div className="flex items-center justify-between pt-2 border-t border-white/8">
-          <p className="text-xs text-white/25">
-            Prossimo pasto:{" "}
-            <span className="text-white/45 font-medium">
-              {nextMeal.emoji} {nextMeal.label} ({nextMeal.timeRange})
-            </span>
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }
 
