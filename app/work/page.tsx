@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { MOCK_DAILY_LOGS } from "@/lib/mock-data";
-import { buildWeeklyReview } from "@/lib/computations";
+import {
+  buildTaskMetrics,
+  buildWeeklyReview,
+  getActionableTasks,
+} from "@/lib/computations";
 import { useKanbanStore } from "@/lib/stores/workStore";
 import { usePomodoroStore } from "@/lib/stores/workStore";
 import { CrudSheet, type CrudContext } from "@/components/global/CrudSheet";
@@ -28,6 +32,21 @@ const CATEGORY_BADGE: Record<Task["category"], string> = {
   Work:  "bg-blue-500/20 text-blue-300",
   Study: "bg-emerald-500/20 text-emerald-300",
   Admin: "bg-slate-500/20 text-slate-300",
+};
+
+const AREA_BADGE: Record<Task["area"], string> = {
+  IELTS: "bg-blue-500/20 text-blue-300",
+  DSE: "bg-emerald-500/20 text-emerald-300",
+  Projects: "bg-violet-500/20 text-violet-300",
+  Websites: "bg-amber-500/20 text-amber-300",
+  Admin: "bg-slate-500/20 text-slate-300",
+};
+
+const PRIORITY_BADGE: Record<Task["priority"], string> = {
+  P0: "bg-red-500/15 text-red-300",
+  P1: "bg-amber-500/15 text-amber-300",
+  P2: "bg-blue-500/15 text-blue-300",
+  P3: "bg-white/10 text-white/55",
 };
 
 function KanbanCard({ task, onAdvance, onSelect, onEdit, onDelete, isActive }: {
@@ -66,10 +85,21 @@ function KanbanCard({ task, onAdvance, onSelect, onEdit, onDelete, isActive }: {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="flex items-center gap-1.5">
+      <div className="mb-2 flex flex-wrap items-center gap-1.5">
         <span className={cn("rounded px-1.5 py-0.5 text-[9px] font-medium", CATEGORY_BADGE[task.category])}>
           {task.category}
         </span>
+        <span className={cn("rounded px-1.5 py-0.5 text-[9px] font-medium", AREA_BADGE[task.area])}>
+          {task.area}
+        </span>
+        <span className={cn("rounded px-1.5 py-0.5 text-[9px] font-medium", PRIORITY_BADGE[task.priority])}>
+          {task.priority}
+        </span>
+        <span className="rounded px-1.5 py-0.5 text-[9px] font-medium text-white/45 bg-white/5">
+          {task.bucket === "ThisWeek" ? "This Week" : task.bucket}
+        </span>
+      </div>
+      <div className="flex items-center gap-1.5">
         <span className="text-[9px] text-white/25">{task.duration_mins}m</span>
         {isActive && <span className="ml-auto text-[9px] text-blue-400">▶ attivo</span>}
       </div>
@@ -288,7 +318,6 @@ const COLUMNS: Task["status"][] = ["Inbox", "Todo", "InProgress", "Done"];
 export default function WorkPage() {
   const { tasks, advanceTask, deleteTask } = useKanbanStore();
   const { activeTask, setActiveTask } = usePomodoroStore();
-  const review = buildWeeklyReview(MOCK_DAILY_LOGS);
   const [sheet, setSheet] = useState<{ open: boolean; ctx: CrudContext | null }>({ open: false, ctx: null });
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<"All" | Task["category"]>("All");
@@ -298,16 +327,16 @@ export default function WorkPage() {
     const matchesSearch =
       !normalizedSearch ||
       task.title.toLowerCase().includes(normalizedSearch) ||
-      task.notes?.toLowerCase().includes(normalizedSearch);
+      task.notes?.toLowerCase().includes(normalizedSearch) ||
+      task.area.toLowerCase().includes(normalizedSearch) ||
+      task.priority.toLowerCase().includes(normalizedSearch);
     const matchesCategory = categoryFilter === "All" || task.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
-  const actionableTasks = tasks.filter((task) => task.status === "Todo" || task.status === "InProgress");
+  const actionableTasks = getActionableTasks(tasks);
+  const taskMetrics = buildTaskMetrics(tasks);
+  const review = buildWeeklyReview(MOCK_DAILY_LOGS, taskMetrics.week_completed);
   const focusMinutes = actionableTasks.reduce((sum, task) => sum + task.duration_mins, 0);
-  const filteredDone = filteredTasks.filter((task) => task.status === "Done").length;
-  const filteredCompletionRate = filteredTasks.length
-    ? Math.round((filteredDone / filteredTasks.length) * 100)
-    : 0;
 
   return (
     <>
@@ -332,12 +361,12 @@ export default function WorkPage() {
             {
               label: "Task attivabili",
               value: actionableTasks.length,
-              hint: "todo + in corso",
+              hint: "todo + in corso, ordinati dai selector condivisi",
             },
             {
-              label: "Minuti in coda",
-              value: focusMinutes,
-              hint: "focus pianificato",
+              label: "Pianificato oggi",
+              value: taskMetrics.today_planned,
+              hint: `${taskMetrics.today_planned_minutes} minuti`,
             },
             {
               label: "Match correnti",
@@ -345,9 +374,9 @@ export default function WorkPage() {
               hint: normalizedSearch || categoryFilter !== "All" ? "filtri attivi" : "tutti i task",
             },
             {
-              label: "Completamento",
-              value: `${filteredCompletionRate}%`,
-              hint: "sul set visibile",
+              label: "Chiusi settimana",
+              value: taskMetrics.week_completed,
+              hint: `${focusMinutes} minuti in coda attiva`,
             },
           ].map(({ label, value, hint }) => (
             <div key={label} className="rounded-xl border border-white/8 bg-white/4 px-4 py-3">

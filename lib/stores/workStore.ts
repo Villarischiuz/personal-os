@@ -4,6 +4,10 @@ import { persist } from "zustand/middleware";
 import { MOCK_TASKS } from "@/lib/mock-data";
 import type { Task } from "@/lib/types";
 import { today } from "@/lib/utils";
+import {
+  defaultTaskAreaForCategory,
+  normalizeTask,
+} from "@/lib/computations";
 
 // ─── Kanban store ─────────────────────────────────────────────
 const CYCLE: Task["status"][] = ["Todo", "InProgress", "Done", "Inbox"];
@@ -21,10 +25,55 @@ interface KanbanStore {
 let _id = 200;
 function newId() { return `t-z${++_id}`; }
 
+function withTaskLifecycle(existing: Task, patch: Partial<Omit<Task, "id">>): Task {
+  const mergedBase = normalizeTask({
+    ...existing,
+    ...patch,
+    id: existing.id,
+    created_at: existing.created_at,
+  });
+  const merged =
+    mergedBase.bucket === "Today" && !mergedBase.date
+      ? { ...mergedBase, date: today() }
+      : mergedBase;
+
+  if (merged.status === "Done") {
+    return {
+      ...merged,
+      completed_at: patch.status === "Done" || existing.status !== "Done"
+        ? today()
+        : merged.completed_at,
+    };
+  }
+
+  return {
+    ...merged,
+    completed_at: undefined,
+  };
+}
+
+function normalizeIncomingTask(task: Task): Task {
+  return normalizeTask(task);
+}
+
+function normalizePersistedTasks(tasks: unknown): Task[] {
+  if (!Array.isArray(tasks)) return MOCK_TASKS.map(normalizeIncomingTask);
+  return tasks
+    .filter((task): task is Partial<Task> & { id: string; title: string } =>
+      !!task &&
+      typeof task === "object" &&
+      "id" in task &&
+      "title" in task &&
+      typeof (task as { id?: unknown }).id === "string" &&
+      typeof (task as { title?: unknown }).title === "string"
+    )
+    .map((task) => normalizeTask(task));
+}
+
 export const useKanbanStore = create<KanbanStore>()(
   persist(
     (set) => ({
-      tasks: MOCK_TASKS,
+      tasks: MOCK_TASKS.map(normalizeIncomingTask),
       _hydrated: false,
 
       advanceTask: (id) =>
@@ -32,30 +81,33 @@ export const useKanbanStore = create<KanbanStore>()(
           tasks: s.tasks.map((t) => {
             if (t.id !== id) return t;
             const idx = CYCLE.indexOf(t.status as (typeof CYCLE)[number]);
-            return { ...t, status: CYCLE[(idx + 1) % CYCLE.length] };
+            return withTaskLifecycle(t, { status: CYCLE[(idx + 1) % CYCLE.length] });
           }),
         })),
 
       addTask: (title) =>
         set((s) => ({
           tasks: [
-            {
+            normalizeTask({
               id: newId(), title, category: "Admin",
+              area: defaultTaskAreaForCategory("Admin"),
+              priority: "P2",
+              bucket: "Backlog",
               energy_required: 2, status: "Inbox",
               duration_mins: 30, created_at: today(),
-            } satisfies Task,
+            } satisfies Task),
             ...s.tasks,
           ],
         })),
 
       addFull: (task) =>
         set((s) => ({
-          tasks: [{ ...task, id: newId(), created_at: today() } as Task, ...s.tasks],
+          tasks: [normalizeTask({ ...task, id: newId(), created_at: today() }), ...s.tasks],
         })),
 
       updateTask: (id, patch) =>
         set((s) => ({
-          tasks: s.tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)),
+          tasks: s.tasks.map((t) => (t.id === id ? withTaskLifecycle(t, patch) : t)),
         })),
 
       deleteTask: (id) =>
@@ -63,6 +115,30 @@ export const useKanbanStore = create<KanbanStore>()(
     }),
     {
       name: "personal-os-kanban-v2",
+      version: 1,
+      migrate: (persistedState) => {
+        const state = persistedState as Partial<KanbanStore> | undefined;
+        if (!state) {
+          return {
+            tasks: MOCK_TASKS.map(normalizeIncomingTask),
+            _hydrated: false,
+          } satisfies Pick<KanbanStore, "tasks" | "_hydrated">;
+        }
+
+        return {
+          ...state,
+          tasks: normalizePersistedTasks(state.tasks),
+          _hydrated: false,
+        };
+      },
+      merge: (persistedState, currentState) => {
+        const persisted = persistedState as Partial<KanbanStore> | undefined;
+        return {
+          ...currentState,
+          ...persisted,
+          tasks: normalizePersistedTasks(persisted?.tasks),
+        } as KanbanStore;
+      },
       onRehydrateStorage: () => (state) => {
         if (state) state._hydrated = true;
       },

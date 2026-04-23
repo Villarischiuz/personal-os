@@ -7,8 +7,10 @@ import { useKanbanStore, usePomodoroStore } from "@/lib/stores/workStore";
 import { usePhysicalStore } from "@/lib/stores/physicalStore";
 import { useStudyStore } from "@/lib/stores/studyStore";
 import { useBiometricStore } from "@/lib/stores/biometricStore";
+import { useTargetStore, daysUntilTarget } from "@/lib/stores/targetStore";
 import { cn } from "@/lib/utils";
 import type { ContextualPriority } from "@/lib/hooks/useContextualPriority";
+import { getFocusTask } from "@/lib/computations";
 
 // JS getDay(): 0=Sun,1=Mon,2=Tue,3=Wed,4=Thu,5=Fri,6=Sat
 const GYM_DAY_TO_ROUTINE_IDX: Record<number, number> = { 1: 0, 3: 1, 5: 2 };
@@ -104,7 +106,7 @@ function WorkoutWidget() {
 function StudyDeepWidget() {
   const { secs, running, isBreak, completed, toggle, reset } = usePomodoroStore();
   const tasks = useKanbanStore((s) => s.tasks);
-  const focusTask = tasks.find((t) => t.status === "InProgress") ?? tasks.find((t) => t.status === "Todo") ?? null;
+  const focusTask = getFocusTask(tasks, "Peak");
 
   const QUICK_LINKS = [
     { label: "Polito Portale", href: "https://didattica.polito.it/", color: "text-blue-300 border-blue-500/25 bg-blue-500/10 hover:bg-blue-500/20" },
@@ -214,11 +216,9 @@ function LeadGenWidget() {
 // ─── Review ───────────────────────────────────────────────────
 function ReviewWidget() {
   const getDueCards = useStudyStore((s) => s.getDueCards);
+  const ieltsExamAt = useTargetStore((s) => s.ielts_exam_at);
   const dueCount = getDueCards().length;
-
-  // IELTS target: 180-day prep started implicitly — compute days to exam from study page logic
-  const IELTS_TARGET = new Date("2025-12-01");
-  const daysToExam = Math.max(0, Math.ceil((IELTS_TARGET.getTime() - Date.now()) / 86400000));
+  const daysToExam = daysUntilTarget(ieltsExamAt);
 
   return (
     <div className="space-y-2">
@@ -283,7 +283,7 @@ function RestWidget() {
 // ─── Dashboard fallback ───────────────────────────────────────
 function DashboardWidget() {
   const tasks = useKanbanStore((s) => s.tasks);
-  const focus = tasks.find((t) => t.status === "InProgress") ?? tasks.find((t) => t.status === "Todo");
+  const focus = getFocusTask(tasks);
 
   return (
     <div className="flex items-center gap-3">

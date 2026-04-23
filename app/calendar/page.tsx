@@ -18,6 +18,10 @@ import { useViewportOrientation } from "@/lib/hooks/useViewportOrientation";
 import { useActiveWeekStore } from "@/lib/stores/calendarStore";
 import { useKanbanStore } from "@/lib/stores/workStore";
 import {
+  defaultTaskAreaForCategory,
+  getFocusTask,
+} from "@/lib/computations";
+import {
   Zap,
   Inbox,
   Clock,
@@ -88,14 +92,16 @@ export default function CalendarPage() {
     todaysEvents.find((event) => eventStartMinutes(event) <= currentMinutes && currentMinutes < eventEndMinutes(event)) ?? null;
   const nextEvent =
     currentEvent ?? todaysEvents.find((event) => eventStartMinutes(event) >= currentMinutes) ?? null;
-  const focusCandidate =
-    todaysPlannedTasks.find((task) => task.status === "Todo" || task.status === "InProgress") ?? null;
+  const focusCandidate = getFocusTask(todaysPlannedTasks, "Peak");
   const todaysPlannedMinutes = todaysPlannedTasks.reduce((sum, task) => sum + task.duration_mins, 0);
 
   function addToInbox(title: string) {
     addFull({
       title,
       category: "Admin",
+      area: defaultTaskAreaForCategory("Admin"),
+      priority: "P2",
+      bucket: "Backlog",
       energy_required: 2,
       status: "Inbox",
       duration_mins: 30,
@@ -103,11 +109,11 @@ export default function CalendarPage() {
   }
 
   function assignToBlock(taskId: string, block: EnergyBlock) {
-    updateTask(taskId, { energy_block: block, status: "Todo" });
+    updateTask(taskId, { energy_block: block, status: "Todo", bucket: "Today" });
   }
 
   function removeFromBlock(taskId: string) {
-    updateTask(taskId, { energy_block: undefined, status: "Inbox" });
+    updateTask(taskId, { energy_block: undefined, status: "Inbox", bucket: "Backlog" });
   }
 
   function handleReplaceAll(events: Omit<WeeklyEvent, "id">[]) {

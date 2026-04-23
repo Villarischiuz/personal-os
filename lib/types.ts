@@ -5,6 +5,9 @@
 
 export type TaskCategory = "Work" | "Study" | "Admin";
 export type TaskStatus = "Inbox" | "Todo" | "InProgress" | "Done";
+export type TaskArea = "IELTS" | "DSE" | "Projects" | "Websites" | "Admin";
+export type TaskPriority = "P0" | "P1" | "P2" | "P3";
+export type TaskBucket = "Backlog" | "ThisWeek" | "Today";
 export type EnergyBlock = "Peak" | "Trough" | "Rebound";
 export type ItemCategory = "Supplement" | "Food";
 
@@ -13,12 +16,17 @@ export interface Task {
   id: string;
   title: string;
   category: TaskCategory;
+  area: TaskArea;
+  priority: TaskPriority;
+  bucket: TaskBucket;
   /** 1 = very low effort, 5 = deep focus required */
   energy_required: 1 | 2 | 3 | 4 | 5;
   status: TaskStatus;
   duration_mins: number;
   /** ISO date string, e.g. "2026-04-11" */
   created_at: string;
+  /** ISO date string, e.g. "2026-04-11" */
+  completed_at?: string;
   /** Optional assigned energy block for calendar view */
   energy_block?: EnergyBlock;
   /** Optional ISO date "YYYY-MM-DD" for day-pinned tasks */
@@ -179,4 +187,9 @@ export interface StreakData {
   current_streak: number;
   longest_streak: number;
   last_broken: string | null;
+}
+
+export interface SharedTargetConfig {
+  dse_exam_at: string;
+  ielts_exam_at: string;
 }

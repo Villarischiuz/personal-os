@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { CrudSheet, type CrudContext } from "@/components/global/CrudSheet";
 import { useStudyStore, type CardRating, type RoadmapTopic } from "@/lib/stores/studyStore";
+import { useTargetStore, daysUntilTarget, toDateTimeLocalValue } from "@/lib/stores/targetStore";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp, ExternalLink, GraduationCap, MoreHorizontal, Plus } from "@/lib/icons";
 
@@ -595,6 +596,8 @@ const DOG_WALK_ITEMS = [
 const DOG_WALK_KEY = "study-dog-walk";
 
 function EnglishTab() {
+  const ieltsExamAt = useTargetStore((state) => state.ielts_exam_at);
+  const setIeltsExamAt = useTargetStore((state) => state.setIeltsExamAt);
   const [dogWalkChecked, setDogWalkChecked] = useState<Record<string, boolean>>(() => {
     if (typeof window === "undefined") return {};
     try {
@@ -603,19 +606,13 @@ function EnglishTab() {
       return {};
     }
   });
+  const [editingTarget, setEditingTarget] = useState(false);
+  const [targetInput, setTargetInput] = useState(() => toDateTimeLocalValue(ieltsExamAt));
   const [today] = useState(() => new Date());
-  const currentYear = today.getFullYear();
-  const candidateTarget = new Date(currentYear, 8, 1);
-  const ieltsTarget =
-    candidateTarget.getTime() > today.getTime()
-      ? candidateTarget
-      : new Date(currentYear + 1, 8, 1);
+  const ieltsTarget = new Date(ieltsExamAt);
   const prepStart = new Date(ieltsTarget);
   prepStart.setDate(prepStart.getDate() - 180);
-  const daysLeft = Math.max(
-    0,
-    Math.ceil((ieltsTarget.getTime() - today.getTime()) / 86400000)
-  );
+  const daysLeft = daysUntilTarget(ieltsExamAt, today);
   const totalDays = Math.max(
     1,
     Math.ceil((ieltsTarget.getTime() - prepStart.getTime()) / 86400000)
@@ -628,14 +625,47 @@ function EnglishTab() {
     localStorage.setItem(DOG_WALK_KEY, JSON.stringify(dogWalkChecked));
   }, [dogWalkChecked]);
 
+  useEffect(() => {
+    setTargetInput(toDateTimeLocalValue(ieltsExamAt));
+  }, [ieltsExamAt]);
+
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>🎯 Target IELTS 5.5 - 6.0</CardTitle>
-          <span className="text-xs text-white/30">{daysLeft} giorni al target</span>
+          <div className="flex items-center justify-between gap-3">
+            <CardTitle>🎯 Target IELTS 5.5 - 6.0</CardTitle>
+            <button
+              onClick={() => setEditingTarget((value) => !value)}
+              className="text-[10px] text-white/30 transition-colors hover:text-white/55"
+            >
+              {editingTarget ? "chiudi" : "modifica data"}
+            </button>
+          </div>
+          <span className="text-xs text-white/30">
+            {daysLeft} giorni al target · {ieltsTarget.toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" })}
+          </span>
         </CardHeader>
         <CardContent className="space-y-3">
+          {editingTarget && (
+            <div className="flex items-center gap-2 rounded-xl border border-white/8 bg-white/3 p-3">
+              <input
+                type="datetime-local"
+                value={targetInput}
+                onChange={(e) => setTargetInput(e.target.value)}
+                className="rounded-lg border border-white/12 bg-white/5 px-3 py-2 text-xs text-white outline-none focus:border-violet-500/40"
+              />
+              <button
+                onClick={() => {
+                  setIeltsExamAt(new Date(targetInput).toISOString());
+                  setEditingTarget(false);
+                }}
+                className="rounded-lg border border-violet-500/30 bg-violet-500/15 px-3 py-2 text-xs font-semibold text-violet-300 transition-colors hover:bg-violet-500/20"
+              >
+                Salva
+              </button>
+            </div>
+          )}
           <div className="flex items-end justify-between text-xs text-white/40 mb-1">
             <span>Ora (B1)</span>
             <span className="text-white font-semibold">{pct}%</span>

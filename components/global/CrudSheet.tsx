@@ -5,8 +5,16 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { useKanbanStore } from "@/lib/stores/workStore";
 import { useStudyStore } from "@/lib/stores/studyStore";
 import { cn } from "@/lib/utils";
-import type { Task, TaskCategory, TaskStatus } from "@/lib/types";
+import type { Task, TaskArea, TaskBucket, TaskCategory, TaskPriority, TaskStatus } from "@/lib/types";
 import type { Flashcard, RoadmapTask } from "@/lib/stores/studyStore";
+import {
+  defaultTaskAreaForCategory,
+  deriveBucketFromDate,
+  getTaskAreas,
+  getTaskBuckets,
+  getTaskPriorities,
+} from "@/lib/computations";
+import { today } from "@/lib/utils";
 
 // ─── Context types ─────────────────────────────────────────────
 export type CrudContext =
@@ -81,33 +89,53 @@ function SaveBtn({ children, onClick }: { children: React.ReactNode; onClick: ()
 // ─── Task form ──────────────────────────────────────────────────
 const CATEGORIES: TaskCategory[] = ["Work", "Study", "Admin"];
 const STATUSES: TaskStatus[] = ["Inbox", "Todo", "InProgress", "Done"];
+const AREAS: TaskArea[] = getTaskAreas();
+const PRIORITIES: TaskPriority[] = getTaskPriorities();
+const BUCKETS: TaskBucket[] = getTaskBuckets();
 
 function TaskForm({ item, defaultDate, onDone }: { item?: Task; defaultDate?: string; onDone: () => void }) {
   const { addFull, updateTask } = useKanbanStore();
   const [title, setTitle] = useState(item?.title ?? "");
   const [category, setCategory] = useState<TaskCategory>(item?.category ?? "Work");
+  const [area, setArea] = useState<TaskArea>(
+    item?.area ?? defaultTaskAreaForCategory(item?.category ?? "Work")
+  );
+  const [priority, setPriority] = useState<TaskPriority>(item?.priority ?? "P2");
+  const [bucket, setBucket] = useState<TaskBucket>(
+    item?.bucket ?? deriveBucketFromDate(defaultDate)
+  );
   const [status, setStatus] = useState<TaskStatus>(item?.status ?? "Inbox");
   const [duration, setDuration] = useState(String(item?.duration_mins ?? 30));
   const [energy, setEnergy] = useState(String(item?.energy_required ?? 2));
   const [date, setDate] = useState(item?.date ?? defaultDate ?? "");
   const [notes, setNotes] = useState(item?.notes ?? "");
 
+  function handleCategoryChange(nextCategory: TaskCategory) {
+    setArea((current) =>
+      !item && current === defaultTaskAreaForCategory(category)
+        ? defaultTaskAreaForCategory(nextCategory)
+        : current
+    );
+    setCategory(nextCategory);
+  }
+
   function save() {
     if (!title.trim()) return;
+    const resolvedDate = bucket === "Today" ? (date || today()) : (date || undefined);
     if (item) {
       updateTask(item.id, {
-        title, category, status,
+        title, category, area, priority, bucket, status,
         duration_mins: Number(duration),
         energy_required: Number(energy) as Task["energy_required"],
-        date: date || undefined,
+        date: resolvedDate,
         notes,
       });
     } else {
       addFull({
-        title, category, status,
+        title, category, area, priority, bucket, status,
         duration_mins: Number(duration),
         energy_required: Number(energy) as Task["energy_required"],
-        date: date || undefined,
+        date: resolvedDate,
         notes,
       });
     }
@@ -123,7 +151,7 @@ function TaskForm({ item, defaultDate, onDone }: { item?: Task; defaultDate?: st
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label>Categoria</Label>
-          <Select value={category} onChange={(e) => setCategory(e.target.value as TaskCategory)}>
+          <Select value={category} onChange={(e) => handleCategoryChange(e.target.value as TaskCategory)}>
             {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
           </Select>
         </div>
@@ -131,6 +159,30 @@ function TaskForm({ item, defaultDate, onDone }: { item?: Task; defaultDate?: st
           <Label>Stato</Label>
           <Select value={status} onChange={(e) => setStatus(e.target.value as TaskStatus)}>
             {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+          </Select>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <Label>Area</Label>
+          <Select value={area} onChange={(e) => setArea(e.target.value as TaskArea)}>
+            {AREAS.map((value) => <option key={value} value={value}>{value}</option>)}
+          </Select>
+        </div>
+        <div>
+          <Label>Priorità</Label>
+          <Select value={priority} onChange={(e) => setPriority(e.target.value as TaskPriority)}>
+            {PRIORITIES.map((value) => <option key={value} value={value}>{value}</option>)}
+          </Select>
+        </div>
+        <div>
+          <Label>Bucket</Label>
+          <Select value={bucket} onChange={(e) => setBucket(e.target.value as TaskBucket)}>
+            {BUCKETS.map((value) => (
+              <option key={value} value={value}>
+                {value === "ThisWeek" ? "This Week" : value}
+              </option>
+            ))}
           </Select>
         </div>
       </div>
