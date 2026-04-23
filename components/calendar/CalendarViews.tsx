@@ -7,11 +7,13 @@ import {
   addMonths, subMonths, addWeeks, subWeeks,
 } from "date-fns";
 import { it } from "date-fns/locale";
+import { useViewportOrientation } from "@/lib/hooks/useViewportOrientation";
+import { useActiveWeekStore } from "@/lib/stores/calendarStore";
 import { useKanbanStore } from "@/lib/stores/workStore";
 import { DailyScheduleCalendar } from "@/components/calendar/DailyScheduleCalendar";
 import { CrudSheet, type CrudContext } from "@/components/global/CrudSheet";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import type { Task, WeeklyEvent } from "@/lib/types";
+import type { Task, WeeklyEvent, DatedEvent } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, Plus } from "@/lib/icons";
 
@@ -38,6 +40,23 @@ const CATEGORY_COLOR: Record<Task["category"], string> = {
   Study: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
   Admin: "border-white/15 bg-white/5 text-white/50",
 };
+
+function getEventsForDate(
+  day: Date,
+  weeklyEvents: WeeklyEvent[],
+  activeWeekEvents: DatedEvent[]
+): Array<WeeklyEvent | DatedEvent> {
+  const iso = isoStr(day);
+  const datedEvents = activeWeekEvents.filter((event) => event.date === iso);
+  if (datedEvents.length > 0) {
+    return datedEvents.sort((a, b) => a.hour * 60 + a.minute - (b.hour * 60 + b.minute));
+  }
+
+  const dayOfWeek = ((day.getDay() + 6) % 7) as 0|1|2|3|4|5|6;
+  return weeklyEvents
+    .filter((event) => event.dayOfWeek === dayOfWeek)
+    .sort((a, b) => a.hour * 60 + a.minute - (b.hour * 60 + b.minute));
+}
 
 // ─── View Switcher ────────────────────────────────────────────
 function ViewSwitcher({ view, onChange }: { view: CalView; onChange: (v: CalView) => void }) {
@@ -68,12 +87,16 @@ function MonthView({
   tasks,
   onDayClick,
   onAddClick,
+  weeklyEvents,
+  activeWeekEvents,
 }: {
   current: Date;
   onNavigate: (d: Date) => void;
   tasks: Task[];
   onDayClick: (d: Date) => void;
   onAddClick: (date: string) => void;
+  weeklyEvents: WeeklyEvent[];
+  activeWeekEvents: DatedEvent[];
 }) {
   const monthStart = startOfMonth(current);
   const monthEnd = endOfMonth(current);
@@ -112,6 +135,7 @@ function MonthView({
           {days.map((day) => {
             const iso = isoStr(day);
             const dayTasks = tasks.filter((t) => t.date === iso);
+            const scheduledEvents = getEventsForDate(day, weeklyEvents, activeWeekEvents);
             const inMonth = isSameMonth(day, current);
             const isToday = dfIsToday(day);
             const dots = dayTasks.slice(0, 4);
@@ -146,6 +170,24 @@ function MonthView({
                   </div>
                 )}
 
+                {scheduledEvents.length > 0 && (
+                  <div className="mt-1 space-y-1 px-0.5">
+                    <span className="inline-flex rounded-full border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[8px] font-semibold text-amber-200">
+                      Eventi {scheduledEvents.length}
+                    </span>
+                    <div className="space-y-0.5">
+                      {scheduledEvents.slice(0, 2).map((event) => (
+                        <div
+                          key={event.id}
+                          className="truncate rounded-md border border-white/8 bg-white/6 px-1.5 py-0.5 text-[8px] text-white/55"
+                        >
+                          {String(event.hour).padStart(2, "0")}:{String(event.minute).padStart(2, "0")} {event.title}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Add hint on hover */}
                 {inMonth && (
                   <Plus size={10} className="absolute bottom-1.5 right-1.5 text-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -167,6 +209,9 @@ function WeekView({
   onAddClick,
   onTaskEdit,
   onTaskDelete,
+  weeklyEvents,
+  focusOnly,
+  activeWeekEvents,
 }: {
   current: Date;
   onNavigate: (d: Date) => void;
@@ -174,6 +219,9 @@ function WeekView({
   onAddClick: (date: string) => void;
   onTaskEdit: (t: Task) => void;
   onTaskDelete: (id: string) => void;
+  weeklyEvents: WeeklyEvent[];
+  focusOnly?: boolean;
+  activeWeekEvents: DatedEvent[];
 }) {
   const weekStart = startOfWeek(current, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(current, { weekStartsOn: 1 });
@@ -201,6 +249,7 @@ function WeekView({
           {days.map((day) => {
             const iso = isoStr(day);
             const dayTasks = tasks.filter((t) => t.date === iso);
+            const scheduledEvents = getEventsForDate(day, weeklyEvents, activeWeekEvents);
             const isToday = dfIsToday(day);
 
             return (
@@ -214,22 +263,47 @@ function WeekView({
                   <p className={cn("text-sm font-bold", isToday ? "text-blue-400" : "text-white/70")}>
                     {format(day, "d")}
                   </p>
+                  {scheduledEvents.length > 0 && (
+                    <div className="mt-1 flex justify-center">
+                      <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[8px] font-semibold text-amber-200">
+                        Eventi {scheduledEvents.length}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                {/* Task cards */}
-                <div className="flex-1 p-1 space-y-1">
-                  {dayTasks.map((t) => (
+                <div className="flex-1 space-y-2 p-1">
+                  {scheduledEvents.length > 0 && (
+                    <div className="space-y-1">
+                      {scheduledEvents.slice(0, focusOnly ? 5 : 3).map((event) => (
+                        <div
+                          key={event.id}
+                          className="rounded-lg border border-white/8 bg-white/5 px-2 py-1.5 text-left"
+                        >
+                          <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-white/35">
+                            {String(event.hour).padStart(2, "0")}:{String(event.minute).padStart(2, "0")}
+                          </p>
+                          <p className="mt-1 text-[11px] font-medium leading-tight text-white/80">
+                            {event.title}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {!focusOnly && dayTasks.map((t) => (
                     <WeekTaskCard key={t.id} task={t} onEdit={() => onTaskEdit(t)} onDelete={() => onTaskDelete(t.id)} />
                   ))}
                 </div>
 
-                {/* Add empty column click */}
-                <button
-                  onClick={() => onAddClick(iso)}
-                  className="flex w-full items-center justify-center gap-1 py-2 text-white/15 hover:text-white/40 hover:bg-white/4 transition-colors min-h-[36px]"
-                >
-                  <Plus size={12} />
-                </button>
+                {!focusOnly && (
+                  <button
+                    onClick={() => onAddClick(iso)}
+                    className="flex w-full items-center justify-center gap-1 py-2 text-white/15 hover:text-white/40 hover:bg-white/4 transition-colors min-h-[36px]"
+                  >
+                    <Plus size={12} />
+                  </button>
+                )}
               </div>
             );
           })}
@@ -264,10 +338,15 @@ interface Props {
   weeklyEvents: WeeklyEvent[];
   selectedDow: 0|1|2|3|4|5|6;
   onDowChange: (d: 0|1|2|3|4|5|6) => void;
+  focusOnly?: boolean;
 }
 
-export function CalendarViews({ weeklyEvents, selectedDow, onDowChange }: Props) {
-  const [view, setView] = useState<CalView>("month");
+export function CalendarViews({ weeklyEvents, selectedDow, onDowChange, focusOnly = false }: Props) {
+  const orientation = useViewportOrientation();
+  const activeWeekEvents = useActiveWeekStore((state) => state.events);
+  const [view, setView] = useState<CalView>(() =>
+    typeof window !== "undefined" && window.innerHeight > window.innerWidth ? "day" : "week"
+  );
   const [current, setCurrent] = useState(new Date());
   const { tasks, deleteTask } = useKanbanStore();
   const [sheet, setSheet] = useState<{ open: boolean; ctx: CrudContext | null }>({ open: false, ctx: null });
@@ -294,12 +373,19 @@ export function CalendarViews({ weeklyEvents, selectedDow, onDowChange }: Props)
       {/* Top bar */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <ViewSwitcher view={view} onChange={setView} />
-        <button
-          onClick={() => openAdd()}
-          className="flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white/70 hover:bg-white/8 hover:text-white transition-colors min-h-[40px]"
-        >
-          <Plus size={13} /> Nuovo task
-        </button>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-white/35">
+            {orientation === "portrait" ? "Asse verticale" : "Asse orizzontale"}
+          </span>
+          {!focusOnly && (
+            <button
+              onClick={() => openAdd()}
+              className="flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white/70 hover:bg-white/8 hover:text-white transition-colors min-h-[40px]"
+            >
+              <Plus size={13} /> Nuovo task
+            </button>
+          )}
+        </div>
       </div>
 
       {view === "month" && (
@@ -309,6 +395,8 @@ export function CalendarViews({ weeklyEvents, selectedDow, onDowChange }: Props)
           tasks={tasks}
           onDayClick={handleDayClick}
           onAddClick={(date) => openAdd(date)}
+          weeklyEvents={weeklyEvents}
+          activeWeekEvents={activeWeekEvents}
         />
       )}
 
@@ -320,6 +408,9 @@ export function CalendarViews({ weeklyEvents, selectedDow, onDowChange }: Props)
           onAddClick={(date) => openAdd(date)}
           onTaskEdit={openEdit}
           onTaskDelete={deleteTask}
+          weeklyEvents={weeklyEvents}
+          focusOnly={focusOnly}
+          activeWeekEvents={activeWeekEvents}
         />
       )}
 
@@ -327,6 +418,7 @@ export function CalendarViews({ weeklyEvents, selectedDow, onDowChange }: Props)
         <DailyScheduleCalendar
           weeklyEvents={weeklyEvents}
           selectedDayOfWeek={selectedDow}
+          focusMode={focusOnly}
           onDayChange={(d) => {
             onDowChange(d);
             // Sync `current` to the matching date
@@ -341,7 +433,7 @@ export function CalendarViews({ weeklyEvents, selectedDow, onDowChange }: Props)
       )}
 
       {/* Zustand tasks for day view (shown as a compact list) */}
-      {view === "day" && (() => {
+      {!focusOnly && view === "day" && (() => {
         const iso = isoStr(current);
         const dayTasks = tasks.filter((t) => t.date === iso);
         if (!dayTasks.length) return null;
@@ -376,11 +468,13 @@ export function CalendarViews({ weeklyEvents, selectedDow, onDowChange }: Props)
         );
       })()}
 
-      <CrudSheet
-        open={sheet.open}
-        context={sheet.ctx}
-        onClose={() => setSheet({ open: false, ctx: null })}
-      />
+      {!focusOnly && (
+        <CrudSheet
+          open={sheet.open}
+          context={sheet.ctx}
+          onClose={() => setSheet({ open: false, ctx: null })}
+        />
+      )}
     </div>
   );
 }

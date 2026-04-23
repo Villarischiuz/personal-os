@@ -108,6 +108,21 @@ export interface WeeklyEvent {
   tag?: EventTag;
 }
 
+export interface DatedEvent {
+  id: string;
+  title: string;
+  /** ISO date string "YYYY-MM-DD" */
+  date: string;
+  hour: number;
+  minute: number;
+  durationMins: number;
+  color: EventColor;
+  tag?: EventTag;
+  notes?: string;
+  /** Locked events belong to a seeded plan and cannot be deleted from the UI */
+  locked?: boolean;
+}
+
 // ─── INTEGRITY LOG ──────────────────────────────────────────
 export interface IntegrityLog {
   sunlight: boolean | null;
