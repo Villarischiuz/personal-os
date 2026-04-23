@@ -50,180 +50,204 @@ function isDue(c: Flashcard) {
 
 // ─── Real seed data ──────────────────────────────────────────
 const SEED_TOPICS: RoadmapTopic[] = [
-  // ── FASE 00 ────────────────────────────────────────────────
+  // ── FASE 00 · PYTHON + ALGORITMI ───────────────────────────
   {
     id: "t-f00-01", phase: "Fase 00", type: "theory",
-    title: "Teoria Relazionale e Normalizzazione DB",
-    desc: "Fondamentale per Ingegneria Gestionale → DSE. Forme normali (1NF, 2NF, 3NF), Algebra Relazionale.",
-    url: "https://www.youtube.com/watch?v=GFQaEYEc8_8",
-    source: "Teoria", done: false, itemsDone: [],
+    title: "CS50P - Introduction to Programming with Python",
+    desc: "Corso principale per funzioni, moduli, file I/O, eccezioni e OOP. Base tecnica pulita per il ponte DSE.",
+    url: "https://cs50.harvard.edu/python",
+    source: "Harvard CS50P", done: false, itemsDone: [],
   },
   {
     id: "t-f00-02", phase: "Fase 00", type: "video_list",
-    title: "Statistica descrittiva — StatQuest",
-    desc: "🛑 Fermati dopo questi 5 video.",
-    source: "StatQuest", done: false, itemsDone: [],
+    title: "CS50P - Lezioni core da completare",
+    desc: "Sequenza minima consigliata per arrivare pronto a coding, automazione e studio tecnico in Python.",
+    source: "Harvard CS50P", done: false, itemsDone: [],
     items: [
-      { title: "Histograms, Clearly Explained", url: "https://www.youtube.com/watch?v=qBigTkBLU6g", dur: "5 min" },
-      { title: "What is a statistical distribution?", url: "https://www.youtube.com/watch?v=oI3hZJqXJuc", dur: "5 min" },
-      { title: "The Normal Distribution", url: "https://www.youtube.com/watch?v=rzFX5NWojp0", dur: "5 min" },
-      { title: "The Mean, Variance and Standard Deviation", url: "https://www.youtube.com/watch?v=SzZ6GpcfoQY", dur: "6 min" },
-      { title: "Boxplots, Clearly Explained", url: "https://www.youtube.com/watch?v=fHLhBnmwUM0", dur: "7 min" },
+      { title: "Functions, Variables", url: "https://cs50.harvard.edu/python/2022/weeks/0/", dur: "~2h" },
+      { title: "Conditionals", url: "https://cs50.harvard.edu/python/2022/weeks/1/", dur: "~1h" },
+      { title: "Loops", url: "https://cs50.harvard.edu/python/2022/weeks/2/", dur: "~1h" },
+      { title: "Exceptions", url: "https://cs50.harvard.edu/python/2022/weeks/3/", dur: "~1h" },
+      { title: "Libraries", url: "https://cs50.harvard.edu/python/2022/weeks/4/", dur: "~1h" },
+      { title: "File I/O", url: "https://cs50.harvard.edu/python/2022/weeks/6/", dur: "~1h" },
+      { title: "OOP", url: "https://cs50.harvard.edu/python/2022/weeks/8/", dur: "~1.5h" },
     ],
   },
   {
     id: "t-f00-03", phase: "Fase 00", type: "video_list",
-    title: "Probabilità, p-value e correlazione",
-    desc: "🛑 Fermati dopo questi 6 video.",
-    source: "StatQuest", done: false, itemsDone: [],
+    title: "CS50x Week 5 - Data Structures",
+    desc: "Concetti fondamentali da riusare in Python: liste, stack, queue, trees, hash table, complessita.",
+    source: "Harvard CS50x", done: false, itemsDone: [],
     items: [
-      { title: "Probability vs Likelihood", url: "https://www.youtube.com/watch?v=pYxNSUDSFH4", dur: "5 min" },
-      { title: "p-values: What they are", url: "https://www.youtube.com/watch?v=vemZtEM63GY", dur: "12 min" },
-      { title: "Statistical Power", url: "https://www.youtube.com/watch?v=Rsc5znwR5FA", dur: "8 min" },
-      { title: "Covariance and Correlation Part 1", url: "https://www.youtube.com/watch?v=qtaqvPAeEJY", dur: "9 min" },
-      { title: "Covariance and Correlation Part 2", url: "https://www.youtube.com/watch?v=xZ_z8KWkhXE", dur: "9 min" },
-      { title: "Confidence Intervals", url: "https://www.youtube.com/watch?v=TqOeMYtOc1w", dur: "8 min" },
+      { title: "Lecture + notes", url: "https://cs50.harvard.edu/x/weeks/5/", dur: "~2h" },
+      { title: "Rivedi Big-O e trade-off", url: "https://cs50.harvard.edu/x/weeks/3/", dur: "~1h" },
+      { title: "Esercizi base LeetCode/HackerRank", url: "https://leetcode.com/", dur: "30-45m" },
     ],
   },
   {
-    id: "t-f00-04", phase: "Fase 00", type: "video_list",
-    title: "Regressione lineare — StatQuest",
-    source: "StatQuest", done: false, itemsDone: [],
-    items: [
-      { title: "Fitting a Line to Data", url: "https://www.youtube.com/watch?v=PaFPbb66DxQ", dur: "9 min" },
-      { title: "Linear Regression, Clearly Explained", url: "https://www.youtube.com/watch?v=7ArmBVF2dCs", dur: "27 min" },
-      { title: "R-squared", url: "https://www.youtube.com/watch?v=2AQKmw14mHM", dur: "11 min" },
-    ],
+    id: "t-f00-04", phase: "Fase 00", type: "link",
+    title: "OOP in Python - project based course",
+    desc: "Ripasso operativo delle classi e del design object-oriented, utile dopo CS50P.",
+    url: "https://www.codecademy.com/learn/learn-object-oriented-programming-with-python",
+    source: "Codecademy", done: false, itemsDone: [],
   },
   {
     id: "t-f00-05", phase: "Fase 00", type: "link",
-    title: "SQL base & Avanzato",
-    desc: "sqlzoo.net (fino a SUM/COUNT) → mode.com (Window Functions, Subqueries)",
-    url: "https://sqlzoo.net/",
-    source: "Interactive", done: false, itemsDone: [],
+    title: "Checklist competenze Python",
+    desc: "Funzioni, moduli, eccezioni, classi, file I/O e scripting: tutto prima di passare al blocco matematico.",
+    url: "https://cs50.harvard.edu/python",
+    source: "Self-check", done: false, itemsDone: [],
   },
-  // ── FASE 01 ────────────────────────────────────────────────
+
+  // ── FASE 01 · ALGEBRA + PROB/STAT ──────────────────────────
   {
     id: "t-f01-01", phase: "Fase 01", type: "link",
-    title: "Algoritmi e Strutture Dati",
-    desc: "Big-O, Liste concatenate, Alberi, Grafi. Colma il gap di informatica.",
-    url: "https://cs50.harvard.edu/x/2023/weeks/3/",
-    source: "CS50 / Grokking Algorithms", done: false, itemsDone: [],
+    title: "3Blue1Brown - Essence of Linear Algebra",
+    desc: "Playlist visuale per fissare geometricamente vettori, matrici, trasformazioni, autovalori e basi.",
+    url: "https://www.youtube.com/playlist?list=PLZHQObOWTQDMsr9K-rj53DwVRMYO3t5Yr",
+    source: "3Blue1Brown", done: false, itemsDone: [],
   },
   {
     id: "t-f01-02", phase: "Fase 01", type: "video_list",
-    title: "Algebra lineare — 3Blue1Brown",
-    desc: "Primi 9 video. Obbligatorio per Deep Learning.",
-    source: "3B1B", done: false, itemsDone: [],
+    title: "MIT 18.06 - Linear Algebra",
+    desc: "Corso universitario completo da affiancare a 3Blue1Brown per rigore ed esercizi.",
+    source: "MIT OCW", done: false, itemsDone: [],
     items: [
-      { title: "Vectors, what even are they?", url: "https://www.youtube.com/watch?v=fNk_zzaMoSs", dur: "9 min" },
-      { title: "Linear combinations, span, basis", url: "https://www.youtube.com/watch?v=k7RM-ot2NWY", dur: "10 min" },
-      { title: "Linear transformations and matrices", url: "https://www.youtube.com/watch?v=kYB8IZa5AuE", dur: "10 min" },
-      { title: "Matrix multiplication", url: "https://www.youtube.com/watch?v=XkY2DOUCWMU", dur: "10 min" },
-      { title: "The determinant", url: "https://www.youtube.com/watch?v=Ip3X9LOh2dk", dur: "10 min" },
-      { title: "Inverse matrices, column/null space", url: "https://www.youtube.com/watch?v=uQhTuRlWMxw", dur: "12 min" },
-      { title: "Nonsquare matrices", url: "https://www.youtube.com/watch?v=v8VSDg_WQlA", dur: "5 min" },
-      { title: "Dot products and duality", url: "https://www.youtube.com/watch?v=LyGKycYT2v0", dur: "10 min" },
-      { title: "Cross products", url: "https://www.youtube.com/watch?v=eu6i7WJeinw", dur: "9 min" },
+      { title: "Vectors and spaces", url: "https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/", dur: "module" },
+      { title: "Matrix methods and decompositions", url: "https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/", dur: "module" },
+      { title: "Eigenvalues, eigenvectors, SVD", url: "https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/", dur: "module" },
     ],
   },
   {
-    id: "t-f01-03", phase: "Fase 01", type: "video_list",
-    title: "CS50P Harvard — Python da zero",
-    desc: "Lezioni 0→6.",
-    source: "Harvard", done: false, itemsDone: [],
-    items: [
-      { title: "Lecture 0 — Functions, Variables", url: "https://cs50.harvard.edu/python/2022/weeks/0/", dur: "~2h" },
-      { title: "Lecture 1 — Conditionals", url: "https://cs50.harvard.edu/python/2022/weeks/1/", dur: "~1h" },
-      { title: "Lecture 2 — Loops", url: "https://cs50.harvard.edu/python/2022/weeks/2/", dur: "~1h" },
-      { title: "Lecture 3 — Exceptions", url: "https://cs50.harvard.edu/python/2022/weeks/3/", dur: "~1h" },
-      { title: "Lecture 4 — Libraries", url: "https://cs50.harvard.edu/python/2022/weeks/4/", dur: "~1h" },
-      { title: "Lecture 5 — File I/O", url: "https://cs50.harvard.edu/python/2022/weeks/6/", dur: "~1h" },
-      { title: "Lecture 6 — OOP", url: "https://cs50.harvard.edu/python/2022/weeks/8/", dur: "~1.5h" },
-    ],
+    id: "t-f01-03", phase: "Fase 01", type: "link",
+    title: "Math for ML (Deisenroth)",
+    desc: "Testo ponte tra algebra, probabilita, calcolo e machine learning. Usalo per capitoli selezionati.",
+    url: "https://mml-book.com",
+    source: "MML Book", done: false, itemsDone: [],
   },
   {
     id: "t-f01-04", phase: "Fase 01", type: "link",
-    title: "Math for ML (Deisenroth)",
-    desc: "Cap 2, 3, 4, 5",
-    url: "https://mml-book.github.io/",
-    source: "PDF", done: false, itemsDone: [],
+    title: "MIT 18.05 - Probability and Statistics",
+    desc: "Probabilita, distribuzioni, inferenza e regressione con taglio universitario.",
+    url: "https://ocw.mit.edu/courses/18-05-introduction-to-probability-and-statistics-spring-2022/",
+    source: "MIT OCW", done: false, itemsDone: [],
   },
   {
     id: "t-f01-05", phase: "Fase 01", type: "link",
-    title: "Python for Data Analysis (McKinney)",
-    desc: "Cap 1-5 — NumPy, Pandas",
-    url: "https://wesmckinney.com/book/",
-    source: "O'Reilly", done: false, itemsDone: [],
+    title: "StatQuest - Probability and Statistics index",
+    desc: "Playlist ponte per chiarire distribuzioni, test, regressione, ANOVA e concetti base.",
+    url: "https://statquest.org/video_index.html",
+    source: "StatQuest", done: false, itemsDone: [],
   },
   {
     id: "t-f01-06", phase: "Fase 01", type: "link",
-    title: "Kaggle Learn",
-    desc: "Python → Pandas → Data Viz",
-    url: "https://www.kaggle.com/learn",
-    source: "Kaggle", done: false, itemsDone: [],
+    title: "Statistics full course for Data Science",
+    desc: "Corso video lungo per consolidare statistica applicata a ML dopo i fondamenti.",
+    url: "https://www.youtube.com/watch?v=E084OFp59O4",
+    source: "YouTube", done: false, itemsDone: [],
   },
-  // ── FASE 02 ────────────────────────────────────────────────
+
+  // ── FASE 02 · DATA ANALYSIS + SQL ──────────────────────────
   {
     id: "t-f02-01", phase: "Fase 02", type: "link",
-    title: "Probabilità e Statistica (Blitzstein & Hwang)",
-    desc: "Focus su catene di Markov.",
-    url: "https://probabilitybook.net/",
-    source: "Harvard", done: false, itemsDone: [],
+    title: "Python for Data Analysis (McKinney)",
+    desc: "Libro open access per NumPy, Pandas, data wrangling e analisi dati in Python.",
+    url: "https://wesmckinney.com/book/",
+    source: "Wes McKinney", done: false, itemsDone: [],
   },
   {
-    id: "t-f02-02", phase: "Fase 02", type: "video_list",
-    title: "ML Intro Teorica — StatQuest",
-    source: "StatQuest", done: false, itemsDone: [],
-    items: [
-      { title: "Gentle Intro to ML", url: "https://www.youtube.com/watch?v=Gv9_4yMHFhI", dur: "8 min" },
-      { title: "Bias and Variance", url: "https://www.youtube.com/watch?v=EuBBz3bI-aA", dur: "6 min" },
-      { title: "Cross Validation", url: "https://www.youtube.com/watch?v=fSytzGwwBVw", dur: "6 min" },
-      { title: "Confusion Matrix", url: "https://www.youtube.com/watch?v=Kdsp6soqA7o", dur: "6 min" },
-      { title: "ROC and AUC", url: "https://www.youtube.com/watch?v=4jRBRDbJemM", dur: "16 min" },
-    ],
+    id: "t-f02-02", phase: "Fase 02", type: "link",
+    title: "Mode SQL Tutorial",
+    desc: "Percorso progressivo browser-based da SELECT e JOIN fino a query piu strutturate.",
+    url: "https://mode.com/sql-tutorial/sql-in-mode/index.html",
+    source: "Mode", done: false, itemsDone: [],
   },
   {
     id: "t-f02-03", phase: "Fase 02", type: "link",
+    title: "SQL Window Functions Tutorial",
+    desc: "ROW_NUMBER, LAG/LEAD, NTILE e analisi avanzata dei dataset tabellari.",
+    url: "https://www.thoughtspot.com/sql-tutorial/sql-window-functions",
+    source: "ThoughtSpot", done: false, itemsDone: [],
+  },
+  {
+    id: "t-f02-04", phase: "Fase 02", type: "link",
+    title: "Theory check - Relational model and normalization",
+    desc: "Tieni il ponte con teoria relazionale, E-R e normalizzazione come supporto ai corsi di data management.",
+    url: "https://www.youtube.com/watch?v=GFQaEYEc8_8",
+    source: "Theory recap", done: false, itemsDone: [],
+  },
+
+  // ── FASE 03 · ML CORE ──────────────────────────────────────
+  {
+    id: "t-f03-01", phase: "Fase 03", type: "link",
+    title: "An Introduction to Statistical Learning (ISLR)",
+    desc: "Testo base consigliato per regressione, classificazione, resampling e valutazione.",
+    url: "https://www.statlearning.com",
+    source: "ISLR", done: false, itemsDone: [],
+  },
+  {
+    id: "t-f03-02", phase: "Fase 03", type: "link",
     title: "Machine Learning Specialization (Andrew Ng)",
-    desc: "Tutti e 3 i corsi — Audit gratuito",
+    desc: "Specialization auditabile gratis per teoria e pratica guidata su ML classico.",
     url: "https://www.coursera.org/specializations/machine-learning-introduction",
     source: "Coursera", done: false, itemsDone: [],
   },
   {
-    id: "t-f02-04", phase: "Fase 02", type: "link",
-    title: "Intro to Statistical Learning (ISLR)",
-    desc: "Cap. 2–6 in ordine.",
-    url: "https://www.statlearning.com/",
-    source: "Book", done: false, itemsDone: [],
-  },
-  {
-    id: "t-f02-05", phase: "Fase 02", type: "link",
-    title: "Databases and SQL for DS (IBM)",
-    desc: "Audit gratuito",
-    url: "https://www.coursera.org/learn/sql-data-science",
-    source: "Coursera", done: false, itemsDone: [],
-  },
-  // ── FASE 03 ────────────────────────────────────────────────
-  {
-    id: "t-f03-01", phase: "Fase 03", type: "link",
-    title: "Deep Learning Specialization (Andrew Ng)",
-    desc: "Primi 2 corsi su 5.",
-    url: "https://www.coursera.org/specializations/deep-learning",
-    source: "Coursera", done: false, itemsDone: [],
-  },
-  {
-    id: "t-f03-02", phase: "Fase 03", type: "link",
-    title: "Progetto Pratico End-to-End",
-    desc: "Raccolta, Pulizia, EDA, Modello predittivo. FONDAMENTALE.",
-    url: "https://github.com/",
-    source: "GitHub", done: false, itemsDone: [],
-  },
-  {
     id: "t-f03-03", phase: "Fase 03", type: "link",
-    title: "Big Data Essentials (Yandex)",
-    desc: "Hadoop, Spark, RDD — Audit gratuito.",
+    title: "StatQuest - Machine Learning index",
+    desc: "Playlist per bias-variance, logistic regression, tree, random forest e metriche.",
+    url: "https://statquest.org/video_index.html",
+    source: "StatQuest", done: false, itemsDone: [],
+  },
+  {
+    id: "t-f03-04", phase: "Fase 03", type: "link",
+    title: "Mini progetto ML end-to-end",
+    desc: "Dataset, pulizia, EDA, modello, metriche e breve write-up. Serve per consolidare davvero il ponte.",
+    url: "https://github.com/",
+    source: "Hands-on", done: false, itemsDone: [],
+  },
+
+  // ── FASE 04 · BIG DATA + DISTRIBUTED ──────────────────────
+  {
+    id: "t-f04-01", phase: "Fase 04", type: "link",
+    title: "Big Data Essentials: HDFS, MapReduce and Spark RDD",
+    desc: "Corso auditabile per capire fondamenta Hadoop/Spark prima della magistrale.",
     url: "https://www.coursera.org/learn/big-data-essentials",
+    source: "Coursera / Yandex", done: false, itemsDone: [],
+  },
+  {
+    id: "t-f04-02", phase: "Fase 04", type: "link",
+    title: "Apache Spark basics",
+    desc: "Introduzione semplificata a Spark, streaming e MLlib per primo orientamento.",
+    url: "https://www.simplilearn.com/learn-apache-spark-basics-free-course-skillup",
+    source: "Simplilearn", done: false, itemsDone: [],
+  },
+  {
+    id: "t-f04-03", phase: "Fase 04", type: "link",
+    title: "PySpark from Basics to Advanced",
+    desc: "Tutorial passo-passo su DataFrame, SQL e flusso pratico in stile Databricks.",
+    url: "https://www.youtube.com/watch?v=1J7qZ5SNGaQ",
+    source: "YouTube", done: false, itemsDone: [],
+  },
+  {
+    id: "t-f04-04", phase: "Fase 04", type: "link",
+    title: "PySpark tutorial for beginners",
+    desc: "Articolo operativo con concetti chiave e best practice da data engineering.",
+    url: "https://dataengineeracademy.com/blog/pyspark-tutorial-for-beginners/",
+    source: "Data Engineer Academy", done: false, itemsDone: [],
+  },
+  {
+    id: "t-f04-05", phase: "Fase 04", type: "link",
+    title: "Distributed Systems for Practitioners",
+    desc: "Percorso concettuale su replica, consistenza, latenze e trade-off dei sistemi distribuiti.",
+    url: "https://www.educative.io/courses/distributed-systems-practitioners",
+    source: "Educative", done: false, itemsDone: [],
+  },
+  {
+    id: "t-f04-06", phase: "Fase 04", type: "link",
+    title: "Distributed Systems and Web Services (facoltativo)",
+    desc: "Approfondimento facoltativo auditabile su web services, REST e infrastrutture distribuite.",
+    url: "https://www.coursera.org/learn/distributed-systems-and-web-services",
     source: "Coursera", done: false, itemsDone: [],
   },
 ];
@@ -245,6 +269,28 @@ const SEED_CARDS: Flashcard[] = [
     q: "A cosa serve GROUP BY?",
     a: "Raggruppa righe con stesso valore; permette aggregazioni per gruppo (COUNT, SUM, AVG)." },
 ];
+
+function mergeSeedTopics(existing: RoadmapTopic[] | undefined, seed: RoadmapTopic[]) {
+  const byId = new Map((existing ?? []).map((topic) => [topic.id, topic]));
+  const mergedSeed = seed.map((topic) => {
+    const previous = byId.get(topic.id);
+    if (!previous) {
+      return topic;
+    }
+
+    return {
+      ...topic,
+      done: previous.done,
+      itemsDone: previous.itemsDone ?? [],
+    };
+  });
+
+  const customTopics = (existing ?? []).filter(
+    (topic) => !seed.some((seedTopic) => seedTopic.id === topic.id)
+  );
+
+  return [...mergedSeed, ...customTopics];
+}
 
 // ─── Store ────────────────────────────────────────────────────
 interface StudyStore {
@@ -337,6 +383,38 @@ export const useStudyStore = create<StudyStore>()(
       deleteRoadmapTask: (id) =>
         set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id) })),
     }),
-    { name: "personal-os-study" }
+    {
+      name: "personal-os-study",
+      version: 2,
+      migrate: (persistedState, version) => {
+        const state = persistedState as Partial<StudyStore> | undefined;
+        if (!state) {
+          return {
+            topics: SEED_TOPICS,
+            cards: SEED_CARDS,
+            studied: 0,
+            tasks: [],
+          };
+        }
+
+        if (version < 2) {
+          return {
+            ...state,
+            topics: mergeSeedTopics(state.topics, SEED_TOPICS),
+            cards: state.cards ?? SEED_CARDS,
+            studied: state.studied ?? 0,
+            tasks: state.tasks ?? [],
+          };
+        }
+
+        return {
+          ...state,
+          topics: mergeSeedTopics(state.topics, SEED_TOPICS),
+          cards: state.cards ?? SEED_CARDS,
+          studied: state.studied ?? 0,
+          tasks: state.tasks ?? [],
+        };
+      },
+    }
   )
 );

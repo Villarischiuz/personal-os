@@ -195,7 +195,7 @@ function FlashcardForm({ item, onDone }: { item?: Flashcard; onDone: () => void 
 }
 
 // ─── Roadmap task form ──────────────────────────────────────────
-const PHASES = ["Fase 00", "Fase 01", "Fase 02", "Fase 03"];
+const PHASES = ["Fase 00", "Fase 01", "Fase 02", "Fase 03", "Fase 04"];
 
 function RoadmapForm({ item, onDone }: { item?: RoadmapTask; onDone: () => void }) {
   const { addRoadmapTask, updateRoadmapTask } = useStudyStore();

@@ -16,31 +16,38 @@ import { ChevronDown, ChevronUp, ExternalLink, GraduationCap, MoreHorizontal, Pl
 const PHASES = [
   {
     id: "Fase 00",
-    label: "Fase 00 — Statistica + SQL",
+    label: "Fase 00 — Python + Algoritmi",
     color: "border-amber-500/30 bg-amber-500/5",
     accent: "text-amber-400",
     bar: "bg-amber-500",
   },
   {
     id: "Fase 01",
-    label: "Fase 01 — Math + Python",
+    label: "Fase 01 — Algebra + Prob/Stat",
     color: "border-blue-500/30 bg-blue-500/5",
     accent: "text-blue-400",
     bar: "bg-blue-500",
   },
   {
     id: "Fase 02",
-    label: "Fase 02 — ML Core",
+    label: "Fase 02 — Data Analysis + SQL",
     color: "border-violet-500/30 bg-violet-500/5",
     accent: "text-violet-400",
     bar: "bg-violet-500",
   },
   {
     id: "Fase 03",
-    label: "Fase 03 — Consolidamento",
+    label: "Fase 03 — ML Core",
     color: "border-green-500/30 bg-green-500/5",
     accent: "text-green-400",
     bar: "bg-green-500",
+  },
+  {
+    id: "Fase 04",
+    label: "Fase 04 — Big Data + Distributed",
+    color: "border-sky-500/30 bg-sky-500/5",
+    accent: "text-sky-400",
+    bar: "bg-sky-500",
   },
 ];
 
@@ -507,9 +514,83 @@ function FlashcardsTab() {
 // PHASE 5 — English Tab
 // ─────────────────────────────────────────────────────────────
 
+const ENGLISH_RESOURCE_GROUPS = [
+  {
+    title: "Corso principale",
+    hint: "Per struttura, strategie e tecnica d'esame.",
+    items: [
+      {
+        label: "Free Full IELTS Course",
+        source: "English Pro Tips · 7+ ore",
+        href: "https://www.youtube.com/watch?v=xjOM5ZZOupA",
+      },
+      {
+        label: "Crash course IELTS in 1 ora",
+        source: "Panoramica veloce",
+        href: "https://www.youtube.com/watch?v=EGBPLDP_qp8",
+      },
+      {
+        label: "British Council - Tips & Tricks",
+        source: "Video ufficiali per skill",
+        href: "https://takeielts.britishcouncil.org/take-ielts/prepare/videos",
+      },
+    ],
+  },
+  {
+    title: "Practice test",
+    hint: "Per mock test e allenamento quotidiano.",
+    items: [
+      {
+        label: "IELTSforFREE",
+        source: "Listening, Reading, Writing, Speaking",
+        href: "https://www.ieltsforfree.com",
+      },
+      {
+        label: "6-week IELTS plan - IDP",
+        source: "Schema settimanale adattabile",
+        href: "https://ieltsidpindia.com/ielts/6-week-study-plan-for-ielts",
+      },
+      {
+        label: "Band 9 Prep study plans",
+        source: "Varianti di pianificazione",
+        href: "https://band9prep.com/blog/ielts-study-plans-complete-guide",
+      },
+    ],
+  },
+  {
+    title: "Grammatica e vocabolario",
+    hint: "Per consolidare B2/C1 utile all'esame.",
+    items: [
+      {
+        label: "Cambridge B2 First preparation",
+        source: "Materiali allineati al target IELTS 5.5-6.0",
+        href: "https://www.cambridgeenglish.org/exams-and-tests/qualifications/first/preparation/",
+      },
+      {
+        label: "Cambridge score comparison",
+        source: "Cambridge scale vs IELTS",
+        href: "https://www.cambridgeenglish.org/Images/461626-cambridge-english-qualifications-comparing-scores-to-ielts.pdf",
+      },
+      {
+        label: "Polito + testi tecnici come reading",
+        source: "Usa documenti DSE e blog data science come letture avanzate",
+        href: "https://www.polito.it/sites/default/files/2023-08/Regolamento_didattico_LM_DATA%20SCIENCE%20AND%20ENGINEERING_2023_2024.pdf",
+      },
+    ],
+  },
+];
+
+const ENGLISH_WEEKLY_STACK = [
+  "1h corso principale IELTS o video British Council per strategie e struttura.",
+  "30-45m pratica guidata su IELTSforFREE con rotazione Listening / Reading / Writing / Speaking.",
+  "15-20m review lessico o grammatica con materiali Cambridge B2 First.",
+  "1 sessione settimanale di writing + 1 sessione di speaking simulato con timer.",
+];
+
 const DOG_WALK_ITEMS = [
-  { id: "dw-1", label: "BBC 6 Minute English", sub: "bbc.co.uk/learningenglish", emoji: "🎙" },
-  { id: "dw-2", label: "DataFramed Podcast", sub: "DataCamp · episodio in coda", emoji: "📊" },
+  { id: "dw-1", label: "BBC 6 Minute English", sub: "Input leggero giornaliero per listening e lessico", emoji: "🎙" },
+  { id: "dw-2", label: "British Council IELTS videos", sub: "Ripasso tips e format mentre cammini", emoji: "🎧" },
+  { id: "dw-3", label: "IELTS speaking samples", sub: "Esporsi a risposte naturali e struttura orale", emoji: "🗣" },
 ];
 const DOG_WALK_KEY = "study-dog-walk";
 
@@ -549,17 +630,16 @@ function EnglishTab() {
 
   return (
     <div className="space-y-4">
-      {/* IELTS Target */}
       <Card>
         <CardHeader>
-          <CardTitle>🎯 Target IELTS 5.5</CardTitle>
-          <span className="text-xs text-white/30">{daysLeft} giorni rimasti</span>
+          <CardTitle>🎯 Target IELTS 5.5 - 6.0</CardTitle>
+          <span className="text-xs text-white/30">{daysLeft} giorni al target</span>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-end justify-between text-xs text-white/40 mb-1">
             <span>Ora (B1)</span>
             <span className="text-white font-semibold">{pct}%</span>
-            <span>IELTS 5.5</span>
+            <span>IELTS 5.5+</span>
           </div>
           <div className="h-2.5 w-full rounded-full bg-white/8 overflow-hidden">
             <div
@@ -569,10 +649,10 @@ function EnglishTab() {
           </div>
           <div className="grid grid-cols-2 gap-2 pt-1">
             {[
-              { label: "Listening", target: "5.5", tip: "BBC 6 Min daily" },
-              { label: "Reading",   target: "5.5", tip: "30 min/day" },
-              { label: "Writing",   target: "5.0", tip: "1 essay/week" },
-              { label: "Speaking",  target: "5.5", tip: "Burlington output" },
+              { label: "Listening", target: "5.5", tip: "IELTSforFREE + BBC" },
+              { label: "Reading", target: "5.5", tip: "Mock + testi tecnici" },
+              { label: "Writing", target: "5.5", tip: "Task 1/2 ogni settimana" },
+              { label: "Speaking", target: "5.5", tip: "Simulazioni + sample answers" },
             ].map(({ label, target, tip }) => (
               <div key={label} className="rounded-lg border border-white/8 bg-white/3 px-3 py-2">
                 <div className="flex items-center justify-between">
@@ -586,7 +666,59 @@ function EnglishTab() {
         </CardContent>
       </Card>
 
-      {/* Dog Walk Audio */}
+      <Card>
+        <CardHeader>
+          <CardTitle>📚 Stack IELTS</CardTitle>
+          <span className="text-xs text-white/30">Solo materiali gratuiti o audit free</span>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {ENGLISH_RESOURCE_GROUPS.map((group) => (
+            <div key={group.title} className="rounded-xl border border-white/8 bg-white/3 p-4">
+              <p className="text-sm font-semibold text-white">{group.title}</p>
+              <p className="mt-1 text-xs text-white/35">{group.hint}</p>
+              <div className="mt-3 space-y-2">
+                {group.items.map((item) => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-start gap-3 rounded-lg border border-white/8 bg-black/10 px-3 py-3 transition-colors hover:border-violet-500/25 hover:bg-white/5"
+                  >
+                    <ExternalLink size={13} className="mt-0.5 flex-shrink-0 text-white/30" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-white/85">{item.label}</p>
+                      <p className="mt-0.5 text-[11px] text-white/35">{item.source}</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>🧭 Come usarli ogni settimana</CardTitle>
+          <span className="text-xs text-white/30">Blocco IELTS da 90 minuti</span>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {ENGLISH_WEEKLY_STACK.map((item) => (
+            <div key={item} className="flex items-start gap-2.5 rounded-lg border border-white/8 bg-white/3 px-3 py-3">
+              <span className="mt-0.5 text-blue-300">•</span>
+              <p className="text-sm leading-relaxed text-white/65">{item}</p>
+            </div>
+          ))}
+          <div className="rounded-xl border border-violet-500/25 bg-violet-500/8 px-4 py-3">
+            <p className="text-xs leading-relaxed text-white/60">
+              Strategia pratica: usa il corso lungo di English Pro Tips come ossatura iniziale,
+              poi fai volume su IELTSforFREE e usa i video British Council per correggere tecnica e timing.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>🐕 Audio da passeggio</CardTitle>
@@ -625,30 +757,29 @@ function EnglishTab() {
             </label>
           ))}
           <p className="text-[10px] text-white/20 text-center pt-1">
-            Listening passivo = input autentico al livello target
+            Listening passivo utile, ma il punteggio sale soprattutto con mock e correzione attiva.
           </p>
         </CardContent>
       </Card>
 
-      {/* Micro-moments */}
       <Card>
         <CardHeader>
           <CardTitle>⚡ Micro-momenti</CardTitle>
-          <span className="text-xs text-white/30">Sostituisci scroll passivo con input in inglese</span>
+          <span className="text-xs text-white/30">Trasforma l&apos;inglese in esposizione quotidiana</span>
         </CardHeader>
         <CardContent>
           <div className="rounded-xl border border-violet-500/30 bg-violet-500/8 px-4 py-4 mb-3">
-            <p className="text-sm font-bold text-violet-300 mb-1">📱 Burlington First</p>
+            <p className="text-sm font-bold text-violet-300 mb-1">📱 Regola anti-scroll</p>
             <p className="text-xs text-white/50 leading-relaxed">
-              Ogni volta che senti il bisogno di aprire Instagram o TikTok, apri Burlington invece.
-              <br />5 minuti di lessico &gt; 5 minuti di scroll.
+              Ogni volta che stai per aprire un social, fai prima 5 minuti di input utile:
+              BBC, Cambridge B2, British Council o un reading tecnico breve.
             </p>
           </div>
           <div className="space-y-2">
             {[
-              { emoji: "🚌", text: "In autobus/treno → Burlington vocabolario" },
-              { emoji: "🍽",  text: "Pranzo da solo → YouTube canale inglese (no sottotitoli IT)" },
-              { emoji: "⏳",  text: "In attesa → leggere 1 articolo BBC News" },
+              { emoji: "🚌", text: "In autobus/treno → 1 esercizio Cambridge B2 o appunti lessicali" },
+              { emoji: "🍽", text: "Pranzo da solo → 1 video British Council o English Pro Tips a pezzi" },
+              { emoji: "⏳", text: "In attesa → 1 articolo BBC News o testo tecnico data science in inglese" },
             ].map(({ emoji, text }) => (
               <div key={text} className="flex items-start gap-2.5 rounded-lg border border-white/6 bg-white/2 px-3 py-2.5">
                 <span className="text-base flex-shrink-0">{emoji}</span>
@@ -670,7 +801,7 @@ export default function StudyPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-black tracking-tight text-white">Studio</h1>
-        <p className="mt-1 text-sm text-white/40">Roadmap Polito · Ripetizione spaziata · Inglese</p>
+        <p className="mt-1 text-sm text-white/40">Ponte DSE · IELTS · Ripetizione spaziata</p>
       </div>
 
       <Tabs defaultValue="roadmap">
