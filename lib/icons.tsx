@@ -79,4 +79,9 @@ export {
   PlayCircle,
   Link as LinkIcon,
   FileText as FileTextIcon,
+  // fralife v2 additions
+  SmartphoneOff,
+  Home,
+  FolderKanban,
+  ClipboardCheck,
 } from "lucide-react";
