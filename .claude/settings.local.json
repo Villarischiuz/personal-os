@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(python -c ' *)",
+      "Bash(python3 -c ' *)",
+      "Bash(node -e ' *)",
+      "Bash(npx --yes pdf-parse \"D:/Downloads/FRANCESCO VILLARI  PIANO NUTRIZIONALE PERSONALIZZATO APRILE 2026.pdf\")",
+      "Bash(pdftotext \"D:/Downloads/FRANCESCO VILLARI  PIANO NUTRIZIONALE PERSONALIZZATO APRILE 2026.pdf\" -)",
+      "Bash(git commit *)"
+    ]
+  }
+}
