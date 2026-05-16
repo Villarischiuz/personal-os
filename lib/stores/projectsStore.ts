@@ -143,7 +143,7 @@ export const useProjectsStore = create<ProjectsStore>()(
           projects: [
             ...s.projects,
             {
-              id: `proj-${++_id}-${Date.now()}`,
+              id: `proj-${Math.random().toString(36).slice(2)}-${Date.now()}`,
               title,
               description,
               isPrimary: false,
