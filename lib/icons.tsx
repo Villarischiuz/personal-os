@@ -80,7 +80,7 @@ export {
   Link as LinkIcon,
   FileText as FileTextIcon,
   // fralife v2 additions
-  SmartphoneOff,
+  PhoneOff as SmartphoneOff,
   Home,
   FolderKanban,
   ClipboardCheck,
